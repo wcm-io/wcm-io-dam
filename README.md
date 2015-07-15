@@ -1,6 +1,6 @@
 <img src="http://wcm.io/images/favicon-16@2x.png"/> wcm.io DAM
 ======
-[![Build Status](https://travis-ci.org/wcm-io/wcm-io-dam.png?branch=master)](https://travis-ci.org/wcm-io/wcm-io-dam)
+[![Build Status](https://travis-ci.org/wcm-io/wcm-io-dam.png?branch=develop)](https://travis-ci.org/wcm-io/wcm-io-dam)
 
 Assets (DAM) extensions for AEM applications.
 
