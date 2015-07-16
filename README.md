@@ -1,4 +1,4 @@
-<img src="http://wcm.io/images/favicon-16@2x.png"/> wcm.io DAM
+<img src="http://wcm.io/images/favicon-16@2x.png"/> wcm.io DAM Extensions
 ======
 [![Build Status](https://travis-ci.org/wcm-io/wcm-io-dam.png?branch=develop)](https://travis-ci.org/wcm-io/wcm-io-dam)
 
