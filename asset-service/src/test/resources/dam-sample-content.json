@@ -1,0 +1,52 @@
+{
+  "jcr:primaryType": "sling:OrderedFolder",
+  "jcr:content": {
+    "jcr:primaryType": "nt:unstructured",
+    "jcr:title": "sample-contents"
+  },
+  "downloads": {
+    "jcr:primaryType": "sling:OrderedFolder",
+    "jcr:content": {
+        "jcr:primaryType": "nt:unstructured",
+        "jcr:title": "downloads"
+      },
+      "sample.pdf": {
+        "jcr:primaryType": "dam:Asset",
+        "jcr:content": {
+          "jcr:primaryType": "dam:AssetContent",
+          "cq:name": "sample-pdf.pdf",
+          "renditions": {
+            "jcr:primaryType": "nt:folder"
+          },
+          "metadata": {
+            "jcr:primaryType": "nt:unstructured",
+            "jcr:title": "VW Sample PDF"
+          }
+        }
+      }
+  },
+  "images": {
+    "jcr:primaryType": "sling:OrderedFolder",
+    "jcr:content": {
+      "jcr:primaryType": "nt:unstructured",
+      "jcr:title": "Images"
+    },
+    "image.jpg": {
+      "jcr:primaryType": "dam:Asset",
+      "jcr:content": {
+        "jcr:primaryType": "dam:AssetContent",
+        "cq:name": "editorialstage_1920-540.jpg",
+        "renditions": {
+          "jcr:primaryType": "nt:folder"
+        },
+        "metadata": {
+          "jcr:primaryType": "nt:unstructured",
+          "jcr:title": "Editoral Stage Sample",
+          "tiff:ImageLength": 540,
+          "tiff:ImageWidth": 1920,
+          "dc:title": "Editoral Stage Sample"
+        }
+      }
+    }
+  }
+}
