@@ -13,9 +13,11 @@ After the asset path this suffix `.wcm-io-asset-service.json` has to be added. T
 
 The URL parameters are optional. Supported parameters:
 
-* **mediaFormat**: Specifies internal media format name of the CMS application
-* **width**:  Requested width of the image.
-* **height**:  Requested height of the image.
+| URL parameter | Multiple | Description
+|---------------|:--------:|-------------
+| `mediaFormat` | X        | Specifies internal media format name of the CMS application
+| `width`       | X        | Requested width of the image (in px)
+| `height`      | X        | Requested height of the image (in px)
 
 Width and height have to be specified always together. If the asset does not comply to this with it is tried to generated a virtual rendition by resizing it. This is only possible if the width/height ratio matches and the asset is not smaller than the requested size.
 
