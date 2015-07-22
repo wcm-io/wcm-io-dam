@@ -8,7 +8,7 @@ A RESTful service for resolving URLs to assets and renditions.
 <dependency>
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.dam.asset-service</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
