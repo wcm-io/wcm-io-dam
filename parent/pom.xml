@@ -26,44 +26,33 @@
     <groupId>io.wcm</groupId>
     <artifactId>io.wcm.parent_toplevel</artifactId>
     <version>1.0.8</version>
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <groupId>io.wcm</groupId>
-  <artifactId>io.wcm.dam</artifactId>
-  <version>1</version>
+  <artifactId>io.wcm.dam.parent</artifactId>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
 
-  <name>DAM Root</name>
+  <name>DAM Extensions</name>
   <description>Assets (DAM) extensions for AEM applications.</description>
-  
-  <modules>
-    <module>parent</module>
-    <module>asset-service</module>
-  </modules>
 
-  <build>
-    <plugins>
+  <scm>
+    <connection>scm:git:https://github.com/wcm-io/wcm-io-dam.git</connection>
+    <developerConnection>scm:git:https://github.com/wcm-io/wcm-io-dam.git</developerConnection>
+    <url>https://github.com/wcm-io/wcm-io-dam</url>
+    <tag>HEAD</tag>
+  </scm>
 
-      <!-- do not deploy this hierarchy pom into maven repository -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
+  <properties>
+    <site.url.module.prefix>dam</site.url.module.prefix>
+  </properties>
 
-      <!-- do not generate site for this project -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <skipDeploy>true</skipDeploy>
-        </configuration>
-      </plugin>
-
-    </plugins>
-  </build>
+  <distributionManagement>
+    <site>
+      <id>${site.deploy.id}</id>
+      <url>${site.deploy.url}${site.url.module.prefix}</url>
+    </site>
+  </distributionManagement>
 
 </project>
