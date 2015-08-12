@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,9 @@
  */
 package io.wcm.dam.assetservice.impl;
 
+import static io.wcm.dam.assetservice.impl.AssetRequestProcessor.RP_HEIGHT;
+import static io.wcm.dam.assetservice.impl.AssetRequestProcessor.RP_MEDIAFORMAT;
+import static io.wcm.dam.assetservice.impl.AssetRequestProcessor.RP_WIDTH;
 import static org.junit.Assert.assertEquals;
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
 import io.wcm.sling.commons.resource.ImmutableValueMap;
@@ -107,7 +110,7 @@ public class AssetServiceServletTest {
   public void testImage_ValidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_MEDIAFORMAT, "format_32_9")
+        .put(RP_MEDIAFORMAT, "format_32_9")
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -128,7 +131,7 @@ public class AssetServiceServletTest {
   public void testImage_InvalidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_MEDIAFORMAT, "format_4_3")
+        .put(RP_MEDIAFORMAT, "format_4_3")
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -139,8 +142,8 @@ public class AssetServiceServletTest {
   public void testImage_ValidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_WIDTH, 960)
-        .put(AssetServiceServlet.RP_HEIGHT, 270)
+        .put(RP_WIDTH, 960)
+        .put(RP_HEIGHT, 270)
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -160,8 +163,8 @@ public class AssetServiceServletTest {
   public void testImage_InvalidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_WIDTH, 960)
-        .put(AssetServiceServlet.RP_HEIGHT, 960)
+        .put(RP_WIDTH, 960)
+        .put(RP_HEIGHT, 960)
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -172,10 +175,10 @@ public class AssetServiceServletTest {
   public void testImage_MultipleSizes() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_WIDTH, new String[] {
+        .put(RP_WIDTH, new String[] {
             "960", "640", "10", "5"
         })
-        .put(AssetServiceServlet.RP_HEIGHT, new String[] {
+        .put(RP_HEIGHT, new String[] {
             "270", "180", "10"
         })
         .build());
