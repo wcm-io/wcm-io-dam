@@ -34,6 +34,9 @@ import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 
+/**
+ * Processes the REST requests incoming to the asset service, resolves the media items and produces the JSON output.
+ */
 class AssetRequestProcessor {
 
   static final String RP_MEDIAFORMAT = "mediaFormat";

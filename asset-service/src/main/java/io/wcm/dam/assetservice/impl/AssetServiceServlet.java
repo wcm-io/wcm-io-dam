@@ -26,18 +26,22 @@ import io.wcm.wcm.commons.contenttype.FileExtension;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.CharEncoding;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
+import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +65,23 @@ public class AssetServiceServlet extends SlingSafeMethodsServlet {
   static final String SELECTOR_PROPERTY = "sling.servlet.selectors";
   static final String SELECTOR_PROPERTY_DEFAULT = "wcm-io-asset-service";
 
+  @Property(label = "DAM paths", description = "List of DAM paths for which the asset service should be active. "
+      + "If not set, the service is active for all paths.",
+      cardinality = Integer.MAX_VALUE)
+  static final String DAM_PATHS_PROPERTY = "damPaths";
+
   private static final Logger log = LoggerFactory.getLogger(AssetServiceServlet.class);
 
-  private final AssetRequestProcessor processor = new AssetRequestProcessor();
+  private AssetRequestProcessor processor;
+
+  @Reference
+  private DamPathHandler damPathHandler;
+
+  @Activate
+  protected void activate(Map<String, Object> config) {
+    damPathHandler.setDamPaths(PropertiesUtil.toStringArray(config.get(DAM_PATHS_PROPERTY)));
+    processor = new AssetRequestProcessor();
+  }
 
   @Override
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {

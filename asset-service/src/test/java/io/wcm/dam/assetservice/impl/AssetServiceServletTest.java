@@ -61,7 +61,8 @@ public class AssetServiceServletTest {
     context.load().binaryFile(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_ASSET_PATH + "/jcr:content/renditions/original");
     context.load().binaryFile(new ByteArrayInputStream(IMAGE_BYTES), IMAGE_ASSET_PATH + "/jcr:content/renditions/original");
 
-    underTest = new AssetServiceServlet();
+    context.registerInjectActivateService(new DamPathHandler());
+    underTest = context.registerInjectActivateService(new AssetServiceServlet());
   }
 
   @Test
