@@ -23,7 +23,6 @@ import io.wcm.handler.media.Media;
 import io.wcm.handler.media.MediaHandler;
 import io.wcm.sling.commons.request.RequestParam;
 import io.wcm.wcm.commons.contenttype.ContentType;
-import io.wcm.wcm.commons.contenttype.FileExtension;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,8 +35,6 @@ import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
@@ -47,35 +44,35 @@ import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.day.cq.dam.api.DamConstants;
-
 /**
  * Implements a simple REST interface that allows resolving DAM asset paths to URLs.
  * For image assets resolving to specific dimensions is supported.
  */
-@SlingServlet(metatype = true,
-resourceTypes = DamConstants.NT_DAM_ASSET,
-extensions = FileExtension.JSON,
-label = "wcm.io DAM Asset Service",
-description = "A RESTful service for resolving URLs to DAM assets and renditions.")
-public class AssetServiceServlet extends SlingSafeMethodsServlet {
-
+class AssetRequestServlet extends SlingSafeMethodsServlet {
   private static final long serialVersionUID = 1L;
-
-  @Property(label = "Selector", description = "Selector for attaching REST service to DAM asset paths.",
-      value = AssetServiceServlet.SELECTOR_PROPERTY_DEFAULT)
-  static final String SELECTOR_PROPERTY = "sling.servlet.selectors";
-  static final String SELECTOR_PROPERTY_DEFAULT = "wcm-io-asset-service";
 
   static final String RP_MEDIAFORMAT = "mediaFormat";
   static final String RP_WIDTH = "width";
   static final String RP_HEIGHT = "height";
 
-  private static final Logger log = LoggerFactory.getLogger(AssetServiceServlet.class);
+  private final DamPathHandler damPathHandler;
+
+  private static final Logger log = LoggerFactory.getLogger(AssetRequestServlet.class);
+
+  public AssetRequestServlet(DamPathHandler damPathHandler) {
+    this.damPathHandler = damPathHandler;
+  }
 
   @Override
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
     String assetPath = request.getResource().getPath();
+
+    // check if asset path is valid
+    if (!damPathHandler.isAllowedAssetPath(assetPath)) {
+      log.debug("Asset path not allowed {}", assetPath);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
 
     // get media handler
     MediaHandler mediaHandler = request.getResource().adaptTo(MediaHandler.class);
@@ -86,7 +83,7 @@ public class AssetServiceServlet extends SlingSafeMethodsServlet {
     }
 
     // build list of asset service requests with optional input parameters
-    List<AssetServiceRequest> requests = getAssetServiceRequests(assetPath, request);
+    List<AssetRequest> requests = getAssetRequests(assetPath, request);
 
     // resolve asset service requests
     List<Media> mediaList = resolveMedia(requests, mediaHandler);
@@ -108,31 +105,31 @@ public class AssetServiceServlet extends SlingSafeMethodsServlet {
     }
   }
 
-  private List<AssetServiceRequest> getAssetServiceRequests(String assetPath, SlingHttpServletRequest request) {
+  private List<AssetRequest> getAssetRequests(String assetPath, SlingHttpServletRequest request) {
     String[] mediaFormats = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_MEDIAFORMAT), new String[0]);
     String[] widthStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_WIDTH), new String[0]);
     String[] heightStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_HEIGHT), new String[0]);
     int maxParamIndex = NumberUtils.max(mediaFormats.length, widthStrings.length, heightStrings.length);
 
-    List<AssetServiceRequest> requests = new ArrayList<>();
+    List<AssetRequest> requests = new ArrayList<>();
     if (maxParamIndex == 0) {
-      requests.add(new AssetServiceRequest(assetPath, null, 0, 0));
+      requests.add(new AssetRequest(assetPath, null, 0, 0));
     }
     else {
       for (int i = 0; i < maxParamIndex; i++) {
         String mediaFormat = mediaFormats.length > i ? mediaFormats[i] : null;
         long width = widthStrings.length > i ? NumberUtils.toLong(widthStrings[i]) : 0;
         long height = heightStrings.length > i ? NumberUtils.toLong(heightStrings[i]) : 0;
-        requests.add(new AssetServiceRequest(assetPath, mediaFormat, width, height));
+        requests.add(new AssetRequest(assetPath, mediaFormat, width, height));
       }
     }
 
     return requests;
   }
 
-  private List<Media> resolveMedia(List<AssetServiceRequest> requests, MediaHandler mediaHandler) {
+  private List<Media> resolveMedia(List<AssetRequest> requests, MediaHandler mediaHandler) {
     List<Media> result = new ArrayList<>();
-    for (AssetServiceRequest request : requests) {
+    for (AssetRequest request : requests) {
       Media media = request.resolve(mediaHandler);
       if (media.isValid()) {
         result.add(media);
