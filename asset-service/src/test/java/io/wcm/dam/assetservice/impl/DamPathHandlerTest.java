@@ -109,8 +109,17 @@ public class DamPathHandlerTest {
   }
 
   @Test
-  public void testWithEmptyPaths() {
+  public void testWithEmptyArray() {
     DamPathHandler handler = new DamPathHandler(new String[0]);
+    assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
+  }
+
+  @Test
+  public void testWithEmptyPaths() {
+    DamPathHandler handler = new DamPathHandler(new String[] {
+      ""
+    });
     assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
     assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }

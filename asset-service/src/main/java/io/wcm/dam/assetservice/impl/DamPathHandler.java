@@ -20,9 +20,12 @@
 package io.wcm.dam.assetservice.impl;
 
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.util.ISO8601;
 
 import com.day.cq.dam.api.DamConstants;
@@ -46,30 +49,40 @@ class DamPathHandler {
   private volatile String dataVersion;
 
   public DamPathHandler(final String[] configuredDamPaths) {
-    String[] damPathArray = configuredDamPaths;
-    if (damPathArray == null || damPathArray.length == 0) {
-      damPathArray = new String[] {
-          DEFAULT_DAM_PATH
-      };
-    }
-    this.damPaths = ImmutableSet.copyOf(damPathArray);
-    this.damPathsPattern = buildDamPathsPattern(damPathArray);
+    this.damPaths = validateDamPaths(configuredDamPaths);
+    this.damPathsPattern = buildDamPathsPattern(this.damPaths);
     generateNewDataVersion();
+  }
+
+  private static Set<String> validateDamPaths(String[] damPaths) {
+    Set<String> paths = new HashSet<>();
+    if (damPaths != null) {
+      for (String path : damPaths) {
+        if (StringUtils.isNotBlank(path)) {
+          paths.add(path);
+        }
+      }
+    }
+    if (paths.isEmpty()) {
+      paths.add(DEFAULT_DAM_PATH);
+    }
+    return ImmutableSet.copyOf(paths);
   }
 
   /**
    * Set DAM paths that should be handled. Only called once by {@link AssetRequestServlet}.
    * @param damPaths DAM folder paths or empty/null if all should be handled.
    */
-  private static Pattern buildDamPathsPattern(String[] damPaths) {
+  private static Pattern buildDamPathsPattern(Set<String> damPaths) {
     StringBuilder pattern = new StringBuilder();
     pattern.append("^(");
-    for (int i = 0; i < damPaths.length; i++) {
-      if (i > 0) {
+    Iterator<String> paths = damPaths.iterator();
+    while (paths.hasNext()) {
+      pattern.append(Pattern.quote(paths.next()));
+      pattern.append("/.*");
+      if (paths.hasNext()) {
         pattern.append("|");
       }
-      pattern.append(Pattern.quote(damPaths[i]));
-      pattern.append("/.*");
     }
     pattern.append(")$");
     return Pattern.compile(pattern.toString());
