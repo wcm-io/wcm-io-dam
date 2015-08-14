@@ -22,13 +22,7 @@ package io.wcm.dam.assetservice.impl;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.jackrabbit.util.ISO8601;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
 
 import com.day.cq.dam.api.DamEvent;
 
@@ -36,27 +30,23 @@ import com.day.cq.dam.api.DamEvent;
  * Handles list of configured DAM paths and listens to DAM events on this paths to generate
  * a new data version on each DAM content change relevant for the DAM asset services consumers.
  */
-@Component(immediate = true)
-@Service({
-  DamPathHandler.class, EventHandler.class
-})
-public class DamPathHandler implements EventHandler {
+class DamPathHandler {
 
   private volatile Pattern damPathsPattern;
   private volatile String dataVersion;
 
-  @Activate
-  protected void activate() {
+  public DamPathHandler(String[] damPaths) {
+    damPathsPattern = buildDamPathsPattern(damPaths);
     generateNewDataVersion();
   }
 
   /**
-   * Set DAM paths that should be handled. Only called once by {@link AssetServiceServlet}.
+   * Set DAM paths that should be handled. Only called once by {@link AssetRequestServlet}.
    * @param damPaths DAM folder paths or empty/null if all should be handled.
    */
-  public void setDamPaths(String[] damPaths) {
+  private static Pattern buildDamPathsPattern(String[] damPaths) {
     if (damPaths == null || damPaths.length == 0) {
-      damPathsPattern = null;
+      return null;
     }
     else {
       StringBuilder pattern = new StringBuilder();
@@ -69,7 +59,7 @@ public class DamPathHandler implements EventHandler {
         pattern.append("/.*");
       }
       pattern.append(")$");
-      damPathsPattern = Pattern.compile(pattern.toString());
+      return Pattern.compile(pattern.toString());
     }
   }
 
@@ -95,13 +85,8 @@ public class DamPathHandler implements EventHandler {
     return dataVersion;
   }
 
-  @Override
-  public void handleEvent(Event event) {
-    if (!StringUtils.equals(event.getTopic(), DamEvent.EVENT_TOPIC)) {
-      return;
-    }
-    DamEvent damEvent = DamEvent.fromEvent(event);
-    if (isAllowedAsset(damEvent.getAssetPath())) {
+  public void handleDamEvent(DamEvent event) {
+    if (isAllowedAsset(event.getAssetPath())) {
       // generate a new data version on any DAM event affecting any of the configured paths
       generateNewDataVersion();
     }

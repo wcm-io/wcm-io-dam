@@ -22,28 +22,90 @@ package io.wcm.dam.assetservice.impl;
 import io.wcm.handler.media.Media;
 import io.wcm.handler.media.MediaHandler;
 import io.wcm.sling.commons.request.RequestParam;
+import io.wcm.wcm.commons.contenttype.ContentType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Processes the REST requests incoming to the asset service, resolves the media items and produces the JSON output.
+ * Implements a simple REST interface that allows resolving DAM asset paths to URLs.
+ * For image assets resolving to specific dimensions is supported.
  */
-class AssetRequestProcessor {
+class AssetRequestServlet extends SlingSafeMethodsServlet {
+  private static final long serialVersionUID = 1L;
 
   static final String RP_MEDIAFORMAT = "mediaFormat";
   static final String RP_WIDTH = "width";
   static final String RP_HEIGHT = "height";
 
-  public List<AssetRequest> getAssetRequests(String assetPath, SlingHttpServletRequest request) {
+  private final DamPathHandler damPathHandler;
+
+  private static final Logger log = LoggerFactory.getLogger(AssetRequestServlet.class);
+
+  public AssetRequestServlet(DamPathHandler damPathHandler) {
+    this.damPathHandler = damPathHandler;
+  }
+
+  @Override
+  protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
+    String assetPath = request.getResource().getPath();
+
+    // check if asset path is valid
+    if (!damPathHandler.isAllowedAsset(assetPath)) {
+      log.debug("Asset path not allowed {}", assetPath);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
+    // get media handler
+    MediaHandler mediaHandler = request.getResource().adaptTo(MediaHandler.class);
+    if (mediaHandler == null) {
+      log.debug("Unable to get media handler for {}", assetPath);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
+    // build list of asset service requests with optional input parameters
+    List<AssetRequest> requests = getAssetRequests(assetPath, request);
+
+    // resolve asset service requests
+    List<Media> mediaList = resolveMedia(requests, mediaHandler);
+    if (mediaList.size() == 0) {
+      log.debug("No matching assets/renditions found for {}; requests: {}", assetPath, requests);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
+    // output result json
+    try {
+      JSONArray resultJson = toResultJson(mediaList);
+      response.setContentType(ContentType.JSON);
+      response.setCharacterEncoding(CharEncoding.UTF_8);
+      response.getWriter().write(resultJson.toString());
+    }
+    catch (JSONException ex) {
+      throw new ServletException("Unable to generate JSON.", ex);
+    }
+  }
+
+  private List<AssetRequest> getAssetRequests(String assetPath, SlingHttpServletRequest request) {
     String[] mediaFormats = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_MEDIAFORMAT), new String[0]);
     String[] widthStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_WIDTH), new String[0]);
     String[] heightStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_HEIGHT), new String[0]);
@@ -65,7 +127,7 @@ class AssetRequestProcessor {
     return requests;
   }
 
-  public List<Media> resolveMedia(List<AssetRequest> requests, MediaHandler mediaHandler) {
+  private List<Media> resolveMedia(List<AssetRequest> requests, MediaHandler mediaHandler) {
     List<Media> result = new ArrayList<>();
     for (AssetRequest request : requests) {
       Media media = request.resolve(mediaHandler);
@@ -76,7 +138,7 @@ class AssetRequestProcessor {
     return result;
   }
 
-  public JSONArray toResultJson(List<Media> mediaList) throws JSONException {
+  private JSONArray toResultJson(List<Media> mediaList) throws JSONException {
     JSONArray array = new JSONArray();
     for (Media media : mediaList) {
       JSONObject mediaObject = new JSONObject();

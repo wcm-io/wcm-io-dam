@@ -19,9 +19,9 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import static io.wcm.dam.assetservice.impl.AssetRequestProcessor.RP_HEIGHT;
-import static io.wcm.dam.assetservice.impl.AssetRequestProcessor.RP_MEDIAFORMAT;
-import static io.wcm.dam.assetservice.impl.AssetRequestProcessor.RP_WIDTH;
+import static io.wcm.dam.assetservice.impl.AssetRequestServlet.RP_HEIGHT;
+import static io.wcm.dam.assetservice.impl.AssetRequestServlet.RP_MEDIAFORMAT;
+import static io.wcm.dam.assetservice.impl.AssetRequestServlet.RP_WIDTH;
 import static org.junit.Assert.assertEquals;
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
 import io.wcm.sling.commons.resource.ImmutableValueMap;
@@ -36,7 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class AssetServiceServletTest {
+public class AssetRequestServletTest {
 
   private static final String DAM_PATH = "/content/dam/sample";
 
@@ -53,7 +53,7 @@ public class AssetServiceServletTest {
   @Rule
   public AemContext context = AppAemContext.newAemContext();
 
-  private AssetServiceServlet underTest;
+  private AssetRequestServlet underTest;
 
   @Before
   public void setUp() {
@@ -61,8 +61,8 @@ public class AssetServiceServletTest {
     context.load().binaryFile(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_ASSET_PATH + "/jcr:content/renditions/original");
     context.load().binaryFile(new ByteArrayInputStream(IMAGE_BYTES), IMAGE_ASSET_PATH + "/jcr:content/renditions/original");
 
-    context.registerInjectActivateService(new DamPathHandler());
-    underTest = context.registerInjectActivateService(new AssetServiceServlet());
+    AssetService assetService = context.registerInjectActivateService(new AssetService());
+    underTest = assetService.getAssetRequestServlet();
   }
 
   @Test
