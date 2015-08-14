@@ -31,10 +31,14 @@ import java.io.ByteArrayInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.sling.testing.mock.osgi.MockOsgi;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
+import com.google.common.collect.ImmutableMap;
 
 public class AssetRequestServletTest {
 
@@ -53,6 +57,7 @@ public class AssetRequestServletTest {
   @Rule
   public AemContext context = AppAemContext.newAemContext();
 
+  private AssetService assetService;
   private AssetRequestServlet underTest;
 
   @Before
@@ -61,8 +66,13 @@ public class AssetRequestServletTest {
     context.load().binaryFile(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_ASSET_PATH + "/jcr:content/renditions/original");
     context.load().binaryFile(new ByteArrayInputStream(IMAGE_BYTES), IMAGE_ASSET_PATH + "/jcr:content/renditions/original");
 
-    AssetService assetService = context.registerInjectActivateService(new AssetService());
+    assetService = context.registerInjectActivateService(new AssetService());
     underTest = assetService.getAssetRequestServlet();
+  }
+
+  @After
+  public void tearDown() {
+    MockOsgi.deactivate(assetService, context.bundleContext(), ImmutableMap.<String, Object>of());
   }
 
   @Test

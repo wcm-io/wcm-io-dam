@@ -47,21 +47,28 @@ public class DamPathHandlerTest {
   }
 
   @Test
-  public void testValidAssetPaths() {
-    assertTrue(underTest.isAllowedAsset(VALID_PATH_1 + "/asset1.jpg"));
-    assertTrue(underTest.isAllowedAsset(VALID_PATH_2 + "/sub2/asset2.jpg"));
+  public void testIsAllowedAssetPath() throws Exception {
+    // valid asset paths
+    assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(underTest.isAllowedAssetPath(VALID_PATH_2 + "/sub2/asset2.jpg"));
+
+    // invalid asset paths
+    assertFalse(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
+    assertFalse(underTest.isAllowedAssetPath(VALID_PATH_1));
   }
 
   @Test
-  public void testInvalidAssetPath() {
-    assertFalse(underTest.isAllowedAsset(INVALID_PATH + "/asset1.jpg"));
-  }
+  public void testIsAllowedDataVersionPath() throws Exception {
+    // valid root paths
+    assertTrue(underTest.isAllowedDataVersionPath(VALID_PATH_1));
+    assertTrue(underTest.isAllowedDataVersionPath(VALID_PATH_2));
 
-  @Test
-  public void testInvalidAssetRootPath() {
-    assertFalse(underTest.isAllowedAsset(VALID_PATH_1));
-    assertFalse(underTest.isAllowedAsset(VALID_PATH_2));
-    assertFalse(underTest.isAllowedAsset(INVALID_PATH));
+    // invalid root path
+    assertFalse(underTest.isAllowedDataVersionPath(INVALID_PATH));
+
+    // asset paths are invalid as well
+    assertFalse(underTest.isAllowedDataVersionPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertFalse(underTest.isAllowedDataVersionPath(VALID_PATH_2 + "/sub2/asset2.jpg"));
   }
 
   @Test
@@ -92,6 +99,20 @@ public class DamPathHandlerTest {
     String dataVersion2 = underTest.getDataVersion();
     assertNotNull(dataVersion2);
     assertEquals("data version", dataVersion1, dataVersion2);
+  }
+
+  @Test
+  public void testWithNullPaths() {
+    DamPathHandler handler = new DamPathHandler(null);
+    assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
+  }
+
+  @Test
+  public void testWithEmptyPaths() {
+    DamPathHandler handler = new DamPathHandler(new String[0]);
+    assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }
 
 }

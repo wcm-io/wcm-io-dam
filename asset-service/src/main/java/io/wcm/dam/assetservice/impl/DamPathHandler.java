@@ -20,11 +20,14 @@
 package io.wcm.dam.assetservice.impl;
 
 import java.util.Calendar;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.jackrabbit.util.ISO8601;
 
+import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Handles list of configured DAM paths and listens to DAM events on this paths to generate
@@ -32,11 +35,25 @@ import com.day.cq.dam.api.DamEvent;
  */
 class DamPathHandler {
 
-  private volatile Pattern damPathsPattern;
+  /**
+   * Full DAM path is used if not DAM path is given in configuration.
+   */
+  private static final String DEFAULT_DAM_PATH = DamConstants.MOUNTPOINT_ASSETS;
+
+  private final Set<String> damPaths;
+  private final Pattern damPathsPattern;
+
   private volatile String dataVersion;
 
-  public DamPathHandler(String[] damPaths) {
-    damPathsPattern = buildDamPathsPattern(damPaths);
+  public DamPathHandler(final String[] configuredDamPaths) {
+    String[] damPathArray = configuredDamPaths;
+    if (damPathArray == null || damPathArray.length == 0) {
+      damPathArray = new String[] {
+          DEFAULT_DAM_PATH
+      };
+    }
+    this.damPaths = ImmutableSet.copyOf(damPathArray);
+    this.damPathsPattern = buildDamPathsPattern(damPathArray);
     generateNewDataVersion();
   }
 
@@ -45,22 +62,17 @@ class DamPathHandler {
    * @param damPaths DAM folder paths or empty/null if all should be handled.
    */
   private static Pattern buildDamPathsPattern(String[] damPaths) {
-    if (damPaths == null || damPaths.length == 0) {
-      return null;
-    }
-    else {
-      StringBuilder pattern = new StringBuilder();
-      pattern.append("^(");
-      for (int i = 0; i < damPaths.length; i++) {
-        if (i > 0) {
-          pattern.append("|");
-        }
-        pattern.append(Pattern.quote(damPaths[i]));
-        pattern.append("/.*");
+    StringBuilder pattern = new StringBuilder();
+    pattern.append("^(");
+    for (int i = 0; i < damPaths.length; i++) {
+      if (i > 0) {
+        pattern.append("|");
       }
-      pattern.append(")$");
-      return Pattern.compile(pattern.toString());
+      pattern.append(Pattern.quote(damPaths[i]));
+      pattern.append("/.*");
     }
+    pattern.append(")$");
+    return Pattern.compile(pattern.toString());
   }
 
   /**
@@ -68,13 +80,17 @@ class DamPathHandler {
    * @param assetPath Asset path
    * @return true if processing is allowed.
    */
-  public boolean isAllowedAsset(String assetPath) {
-    if (damPathsPattern == null) {
-      return true;
-    }
-    else {
-      return damPathsPattern.matcher(assetPath).matches();
-    }
+  public boolean isAllowedAssetPath(String assetPath) {
+    return damPathsPattern.matcher(assetPath).matches();
+  }
+
+  /**
+   * Checks if the given folder path is allowed to get a data version.
+   * @param path DAM folder path
+   * @return true if getting data version is allowed for this path.
+   */
+  public boolean isAllowedDataVersionPath(String path) {
+    return damPaths.contains(path);
   }
 
   /**
@@ -86,7 +102,7 @@ class DamPathHandler {
   }
 
   public void handleDamEvent(DamEvent event) {
-    if (isAllowedAsset(event.getAssetPath())) {
+    if (isAllowedAssetPath(event.getAssetPath())) {
       // generate a new data version on any DAM event affecting any of the configured paths
       generateNewDataVersion();
     }

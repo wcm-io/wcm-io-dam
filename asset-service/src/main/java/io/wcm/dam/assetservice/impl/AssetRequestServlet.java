@@ -68,7 +68,7 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
     String assetPath = request.getResource().getPath();
 
     // check if asset path is valid
-    if (!damPathHandler.isAllowedAsset(assetPath)) {
+    if (!damPathHandler.isAllowedAssetPath(assetPath)) {
       log.debug("Asset path not allowed {}", assetPath);
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;

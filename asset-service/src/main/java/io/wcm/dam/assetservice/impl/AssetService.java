@@ -74,6 +74,7 @@ public class AssetService implements EventHandler {
   private DamPathHandler damPathHandler;
   private BundleContext bundleContext;
   private ServiceRegistration assetRequestServletReg;
+  private ServiceRegistration dataVersionServletReg;
 
   @Activate
   protected void activate(ComponentContext componentContext) {
@@ -87,13 +88,17 @@ public class AssetService implements EventHandler {
     damPathHandler = new DamPathHandler(damPaths);
 
     // register servlets to resource types to handle the JSON requests
+    // they are registred dynamically because the selectors are configurable
     assetRequestServletReg = registerServlet(bundleContext, new AssetRequestServlet(damPathHandler),
         DamConstants.NT_DAM_ASSET, assetServletSelector);
+    dataVersionServletReg = registerServlet(bundleContext, new DataVersionServlet(damPathHandler),
+        "sling:OrderedFolder", dataVersionServletSelector);
   }
 
   @Deactivate
   protected void deactivate(ComponentContext componentContext) {
     assetRequestServletReg.unregister();
+    dataVersionServletReg.unregister();
   }
 
   @Override
@@ -107,6 +112,10 @@ public class AssetService implements EventHandler {
 
   AssetRequestServlet getAssetRequestServlet() {
     return (AssetRequestServlet)bundleContext.getService(assetRequestServletReg.getReference());
+  }
+
+  DataVersionServlet getDataVersionServlet() {
+    return (DataVersionServlet)bundleContext.getService(dataVersionServletReg.getReference());
   }
 
   private static <T extends Servlet> ServiceRegistration registerServlet(BundleContext bundleContext, T servletInstance,
