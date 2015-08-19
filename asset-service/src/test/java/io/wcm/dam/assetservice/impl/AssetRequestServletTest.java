@@ -94,7 +94,8 @@ public class AssetRequestServletTest {
         + "{'assetPath':'" + DAM_PATH + "/downloads/sample.pdf',"
         + "'url':'" + DAM_PATH + "/downloads/sample.pdf/_jcr_content/renditions/original./sample.pdf',"
         + "'fileSize':" + DOWNLOAD_BYTES.length + ","
-        + "'fileExtension':'pdf'}"
+        + "'fileExtension':'pdf',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -112,7 +113,8 @@ public class AssetRequestServletTest {
         + "'width':1920,"
         + "'height':540,"
         + "'fileSize':" + IMAGE_BYTES.length + ","
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -133,7 +135,8 @@ public class AssetRequestServletTest {
         + "'width':1920,"
         + "'height':540,"
         + "'fileSize':" + IMAGE_BYTES.length + ","
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -165,7 +168,8 @@ public class AssetRequestServletTest {
         + "'url':'" + DAM_PATH + "/images/image.jpg/_jcr_content/renditions/original.image_file.960.270.file/image.jpg',"
         + "'width':960,"
         + "'height':270,"
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -202,12 +206,14 @@ public class AssetRequestServletTest {
         + "'url':'" + DAM_PATH + "/images/image.jpg/_jcr_content/renditions/original.image_file.960.270.file/image.jpg',"
         + "'width':960,"
         + "'height':270,"
-        + "'fileExtension':'jpg'},"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'},"
         + "{'assetPath':'" + DAM_PATH + "/images/image.jpg',"
         + "'url':'" + DAM_PATH + "/images/image.jpg/_jcr_content/renditions/original.image_file.640.180.file/image.jpg',"
         + "'width':640,"
         + "'height':180,"
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }

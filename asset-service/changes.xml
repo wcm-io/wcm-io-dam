@@ -30,6 +30,9 @@
       <action type="add" dev="sseifert">
         Support restricting the areas of DAM which should be served by the services with a list of DAM content paths in configuration.
       </action>
+      <action type="add" dev="sseifert">
+        Add "mimeType" property for asset items.
+      </action>
     </release>
 
     <release version="1.0.0" date="2015-07-22">

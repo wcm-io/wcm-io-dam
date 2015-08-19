@@ -21,6 +21,7 @@ package io.wcm.dam.assetservice.impl;
 
 import io.wcm.handler.media.Media;
 import io.wcm.handler.media.MediaHandler;
+import io.wcm.handler.media.Rendition;
 import io.wcm.sling.commons.request.RequestParam;
 import io.wcm.wcm.commons.contenttype.ContentType;
 
@@ -33,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -141,19 +141,19 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
   private JSONArray toResultJson(List<Media> mediaList) throws JSONException {
     JSONArray array = new JSONArray();
     for (Media media : mediaList) {
+      Rendition rendition = media.getRendition();
       JSONObject mediaObject = new JSONObject();
       mediaObject.put("assetPath", media.getAsset().getPath());
       mediaObject.put("url", media.getUrl());
-      if (media.getRendition().getWidth() > 0 && media.getRendition().getHeight() > 0) {
-        mediaObject.put("width", media.getRendition().getWidth());
-        mediaObject.put("height", media.getRendition().getHeight());
+      if (rendition.getWidth() > 0 && rendition.getHeight() > 0) {
+        mediaObject.put("width", rendition.getWidth());
+        mediaObject.put("height", rendition.getHeight());
       }
-      if (media.getRendition().getFileSize() > 0) {
-        mediaObject.put("fileSize", media.getRendition().getFileSize());
+      if (rendition.getFileSize() > 0) {
+        mediaObject.put("fileSize", rendition.getFileSize());
       }
-      if (StringUtils.isNotEmpty(media.getRendition().getFileExtension())) {
-        mediaObject.put("fileExtension", media.getRendition().getFileExtension());
-      }
+      mediaObject.putOpt("fileExtension", rendition.getFileExtension());
+      mediaObject.putOpt("mimeType", rendition.getMimeType());
       array.put(mediaObject);
     }
     return array;

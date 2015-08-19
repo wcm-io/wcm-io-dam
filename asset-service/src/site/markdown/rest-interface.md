@@ -53,7 +53,8 @@ Response:
     "assetPath": "/content/dam/sample/sample.pdf",
     "url": "/content/dam/sample/sample.pdf/_jcr_content/renditions/original./sample.pdf",
     "fileSize": 105990,
-    "fileExtension": "pdf"
+    "fileExtension": "pdf",
+    "mimeType": "application/pdf"
   }
 ]
 ```
@@ -71,7 +72,8 @@ Response:
     "url": "/content/dam/sample/myteaser.jpg/_jcr_content/renditions/myteaser.jpg.image_file.273.154.file/myteaser.jpg",
     "width": 273,
     "height": 154,
-    "fileExtension": "jpg"
+    "fileExtension": "jpg",
+    "mimeType": "image/jpeg"
   },
   {
     "assetPath": "/content/dam/sample/myteaser.jpg",
@@ -79,7 +81,8 @@ Response:
     "width": 546,
     "height": 307,
     "fileSize": 89479,
-    "fileExtension": "jpg"
+    "fileExtension": "jpg",
+    "mimeType": "image/jpeg"
   }
 ]
 ```
