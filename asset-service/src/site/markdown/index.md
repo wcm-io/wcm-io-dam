@@ -8,13 +8,14 @@ A RESTful service for resolving URLs to assets and renditions.
 <dependency>
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.dam.asset-service</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
 ### Documentation
 
 * [REST Interface][rest-interface]
+* [Configuration][configuration]
 * [Changelog][changelog]
 
 
@@ -28,5 +29,6 @@ See [REST Interface][rest-interface] for a description of the interface.
 
 
 [rest-interface]: rest-interface.html
+[configuration]: configuration.html
 [changelog]: changes-report.html
 [media-handler]: http://wcm.io/handler/media/

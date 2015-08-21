@@ -28,14 +28,14 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * Holds parameters for an asset service request;
  */
-class AssetServiceRequest {
+class AssetRequest {
 
   private final String assetPath;
   private final String mediaFormatName;
   private final long width;
   private final long height;
 
-  public AssetServiceRequest(String assetPath, String mediaFormatName, long width, long height) {
+  public AssetRequest(String assetPath, String mediaFormatName, long width, long height) {
     this.assetPath = assetPath;
     this.mediaFormatName = mediaFormatName;
     this.width = width;

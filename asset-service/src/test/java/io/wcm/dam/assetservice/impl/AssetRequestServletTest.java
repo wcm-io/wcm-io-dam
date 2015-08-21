@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,9 @@
  */
 package io.wcm.dam.assetservice.impl;
 
+import static io.wcm.dam.assetservice.impl.AssetRequestServlet.RP_HEIGHT;
+import static io.wcm.dam.assetservice.impl.AssetRequestServlet.RP_MEDIAFORMAT;
+import static io.wcm.dam.assetservice.impl.AssetRequestServlet.RP_WIDTH;
 import static org.junit.Assert.assertEquals;
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
 import io.wcm.sling.commons.resource.ImmutableValueMap;
@@ -28,12 +31,16 @@ import java.io.ByteArrayInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.sling.testing.mock.osgi.MockOsgi;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class AssetServiceServletTest {
+import com.google.common.collect.ImmutableMap;
+
+public class AssetRequestServletTest {
 
   private static final String DAM_PATH = "/content/dam/sample";
 
@@ -50,7 +57,8 @@ public class AssetServiceServletTest {
   @Rule
   public AemContext context = AppAemContext.newAemContext();
 
-  private AssetServiceServlet underTest;
+  private AssetService assetService;
+  private AssetRequestServlet underTest;
 
   @Before
   public void setUp() {
@@ -58,7 +66,13 @@ public class AssetServiceServletTest {
     context.load().binaryFile(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_ASSET_PATH + "/jcr:content/renditions/original");
     context.load().binaryFile(new ByteArrayInputStream(IMAGE_BYTES), IMAGE_ASSET_PATH + "/jcr:content/renditions/original");
 
-    underTest = new AssetServiceServlet();
+    assetService = context.registerInjectActivateService(new AssetService());
+    underTest = assetService.getAssetRequestServlet();
+  }
+
+  @After
+  public void tearDown() {
+    MockOsgi.deactivate(assetService, context.bundleContext(), ImmutableMap.<String, Object>of());
   }
 
   @Test
@@ -80,7 +94,8 @@ public class AssetServiceServletTest {
         + "{'assetPath':'" + DAM_PATH + "/downloads/sample.pdf',"
         + "'url':'" + DAM_PATH + "/downloads/sample.pdf/_jcr_content/renditions/original./sample.pdf',"
         + "'fileSize':" + DOWNLOAD_BYTES.length + ","
-        + "'fileExtension':'pdf'}"
+        + "'fileExtension':'pdf',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -98,7 +113,8 @@ public class AssetServiceServletTest {
         + "'width':1920,"
         + "'height':540,"
         + "'fileSize':" + IMAGE_BYTES.length + ","
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -107,7 +123,7 @@ public class AssetServiceServletTest {
   public void testImage_ValidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_MEDIAFORMAT, "format_32_9")
+        .put(RP_MEDIAFORMAT, "format_32_9")
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -119,7 +135,8 @@ public class AssetServiceServletTest {
         + "'width':1920,"
         + "'height':540,"
         + "'fileSize':" + IMAGE_BYTES.length + ","
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -128,7 +145,7 @@ public class AssetServiceServletTest {
   public void testImage_InvalidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_MEDIAFORMAT, "format_4_3")
+        .put(RP_MEDIAFORMAT, "format_4_3")
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -139,8 +156,8 @@ public class AssetServiceServletTest {
   public void testImage_ValidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_WIDTH, 960)
-        .put(AssetServiceServlet.RP_HEIGHT, 270)
+        .put(RP_WIDTH, 960)
+        .put(RP_HEIGHT, 270)
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -151,7 +168,8 @@ public class AssetServiceServletTest {
         + "'url':'" + DAM_PATH + "/images/image.jpg/_jcr_content/renditions/original.image_file.960.270.file/image.jpg',"
         + "'width':960,"
         + "'height':270,"
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
@@ -160,8 +178,8 @@ public class AssetServiceServletTest {
   public void testImage_InvalidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_WIDTH, 960)
-        .put(AssetServiceServlet.RP_HEIGHT, 960)
+        .put(RP_WIDTH, 960)
+        .put(RP_HEIGHT, 960)
         .build());
     underTest.doGet(context.request(), context.response());
 
@@ -172,10 +190,10 @@ public class AssetServiceServletTest {
   public void testImage_MultipleSizes() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
-        .put(AssetServiceServlet.RP_WIDTH, new String[] {
+        .put(RP_WIDTH, new String[] {
             "960", "640", "10", "5"
         })
-        .put(AssetServiceServlet.RP_HEIGHT, new String[] {
+        .put(RP_HEIGHT, new String[] {
             "270", "180", "10"
         })
         .build());
@@ -188,12 +206,14 @@ public class AssetServiceServletTest {
         + "'url':'" + DAM_PATH + "/images/image.jpg/_jcr_content/renditions/original.image_file.960.270.file/image.jpg',"
         + "'width':960,"
         + "'height':270,"
-        + "'fileExtension':'jpg'},"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'},"
         + "{'assetPath':'" + DAM_PATH + "/images/image.jpg',"
         + "'url':'" + DAM_PATH + "/images/image.jpg/_jcr_content/renditions/original.image_file.640.180.file/image.jpg',"
         + "'width':640,"
         + "'height':180,"
-        + "'fileExtension':'jpg'}"
+        + "'fileExtension':'jpg',"
+        + "'mimeType':'application/octet-stream'}"
         + "]";
     JSONAssert.assertEquals(expected, context.response().getOutputAsString(), true);
   }
