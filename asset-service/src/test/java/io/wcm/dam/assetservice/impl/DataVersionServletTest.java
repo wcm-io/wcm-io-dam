@@ -99,7 +99,7 @@ public class DataVersionServletTest {
     assetService.handleEvent(DamEvent.assetCreated(VALID_DAM_PATH + "/images/image.jpg", null).toEvent());
 
     // do 2nd request
-    MockSlingHttpServletRequest request2 = new MockSlingHttpServletRequest();
+    MockSlingHttpServletRequest request2 = new MockSlingHttpServletRequest(context.bundleContext());
     request2.setResource(context.currentResource());
     MockSlingHttpServletResponse response2 = new MockSlingHttpServletResponse();
 
