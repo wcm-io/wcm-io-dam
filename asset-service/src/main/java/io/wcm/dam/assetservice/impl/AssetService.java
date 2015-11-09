@@ -88,7 +88,7 @@ public class AssetService implements EventHandler {
     damPathHandler = new DamPathHandler(damPaths);
 
     // register servlets to resource types to handle the JSON requests
-    // they are registred dynamically because the selectors are configurable
+    // they are registered dynamically because the selectors are configurable
     assetRequestServletReg = registerServlet(bundleContext, new AssetRequestServlet(damPathHandler),
         DamConstants.NT_DAM_ASSET, assetServletSelector);
     dataVersionServletReg = registerServlet(bundleContext, new DataVersionServlet(damPathHandler),

@@ -125,8 +125,8 @@ class DamPathHandler {
    * Generates a new data version based on current timestamp.
    */
   private void generateNewDataVersion() {
-    // use timestamp as data version. clashing of versions if two are generated at exaclty the same time point
-    // is not the problem, because the data version can than be the same.
+    // use timestamp as data version. clashing of versions if two are generated at exactly the same time point
+    // is not the problem, because the data version can then be the same.
     dataVersion = ISO8601.format(Calendar.getInstance());
   }
 
