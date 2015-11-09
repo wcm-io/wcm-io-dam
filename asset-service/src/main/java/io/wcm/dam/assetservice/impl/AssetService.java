@@ -31,7 +31,9 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -39,6 +41,8 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
@@ -66,26 +70,41 @@ public class AssetService implements EventHandler {
   static final String DATAVERSION_SERVLET_SELECTOR_PROPERTY = "dataVersionServletSelector";
   static final String DATAVERSION_SERVLET_SELECTOR_PROPERTY_DEFAULT = "wcm-io-asset-service-dataversion";
 
+  @Property(label = "Update Interval (sec)", description = "Updating interval for calculating data versions in seconds. "
+      + "If multiple changes to the DAM folders contents are detected within this interval they are collected.",
+      intValue = AssetService.DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT)
+  static final String DATAVERSION_UPDATE_INTERVAL_SEC_PROPERTY = "dataVersionUpdateIntervalSec";
+  static final int DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT = 2 * 60;
+
   @Property(label = "DAM paths", description = "List of DAM paths for which the asset service should be active. "
       + "If not set, the service is active for all paths.",
       cardinality = Integer.MAX_VALUE)
   static final String DAM_PATHS_PROPERTY = "damPaths";
+
+  @Reference
+  private ResourceResolverFactory resourceResolverFactory;
 
   private DamPathHandler damPathHandler;
   private BundleContext bundleContext;
   private ServiceRegistration assetRequestServletReg;
   private ServiceRegistration dataVersionServletReg;
 
+  private static final Logger log = LoggerFactory.getLogger(AssetService.class);
+
   @Activate
   protected void activate(ComponentContext componentContext) {
+    log.info("Start wcm.io DAM Asset Service.");
+
     bundleContext = componentContext.getBundleContext();
     Dictionary config = componentContext.getProperties();
 
     String assetServletSelector = PropertiesUtil.toString(config.get(ASSET_SERVLET_SELECTOR_PROPERTY), null);
     String dataVersionServletSelector = PropertiesUtil.toString(config.get(DATAVERSION_SERVLET_SELECTOR_PROPERTY), null);
+    int dataVersionUpdateIntervalSec = PropertiesUtil.toInteger(config.get(DATAVERSION_UPDATE_INTERVAL_SEC_PROPERTY),
+        DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT);
 
     String[] damPaths = PropertiesUtil.toStringArray(config.get(DAM_PATHS_PROPERTY));
-    damPathHandler = new DamPathHandler(damPaths);
+    damPathHandler = new DamPathHandler(damPaths, dataVersionUpdateIntervalSec, resourceResolverFactory);
 
     // register servlets to resource types to handle the JSON requests
     // they are registered dynamically because the selectors are configurable
@@ -97,8 +116,11 @@ public class AssetService implements EventHandler {
 
   @Deactivate
   protected void deactivate(ComponentContext componentContext) {
+    log.info("Shutdown wcm.io DAM Asset Service.");
+
     assetRequestServletReg.unregister();
     dataVersionServletReg.unregister();
+    damPathHandler.shutdown();
   }
 
   @Override
