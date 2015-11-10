@@ -76,8 +76,8 @@ public class AssetService implements EventHandler {
   @Property(label = "Data Version Strategy", description = "Strategy for building the data versions. See documentation for details.",
       value = AssetService.DATAVERSION_STRATEGY_DEFAULT,
       options = {
-      @PropertyOption(name = "Timestamp of last DAM event", value = TimestampDataVersionStrategy.STRATEGY),
-      @PropertyOption(name = "Aggregated checksum of DAM assets", value = ChecksumDataVersionStrategy.STRATEGY)
+      @PropertyOption(value = TimestampDataVersionStrategy.STRATEGY + ": Timestamp of last DAM event", name = TimestampDataVersionStrategy.STRATEGY),
+      @PropertyOption(value = ChecksumDataVersionStrategy.STRATEGY + ": Aggregated checksum of DAM assets", name = ChecksumDataVersionStrategy.STRATEGY)
   })
   static final String DATAVERSION_STRATEGY_PROPERTY = "dataVersionStrategy";
   static final String DATAVERSION_STRATEGY_DEFAULT = TimestampDataVersionStrategy.STRATEGY;

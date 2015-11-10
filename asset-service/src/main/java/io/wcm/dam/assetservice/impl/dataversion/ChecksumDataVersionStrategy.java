@@ -60,7 +60,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
   /**
    * Default data version that is returned when no data version was yet calculated.
    */
-  private static final String DATAVERSION_NOT_CALCULATED = "-1";
+  private static final String DATAVERSION_NOT_CALCULATED = "unknown";
 
   private final long dataVersionUpdateIntervalMs;
   private final String dataVersionQueryString;
