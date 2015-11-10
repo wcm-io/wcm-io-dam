@@ -22,7 +22,6 @@ package io.wcm.dam.assetservice.impl;
 import io.wcm.handler.media.Media;
 import io.wcm.handler.media.MediaHandler;
 import io.wcm.handler.media.Rendition;
-import io.wcm.sling.commons.request.RequestParam;
 import io.wcm.wcm.commons.contenttype.ContentType;
 
 import java.io.IOException;
@@ -33,8 +32,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.CharEncoding;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
@@ -50,10 +47,6 @@ import org.slf4j.LoggerFactory;
  */
 class AssetRequestServlet extends SlingSafeMethodsServlet {
   private static final long serialVersionUID = 1L;
-
-  static final String RP_MEDIAFORMAT = "mediaFormat";
-  static final String RP_WIDTH = "width";
-  static final String RP_HEIGHT = "height";
 
   private final DamPathHandler damPathHandler;
 
@@ -83,7 +76,7 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
     }
 
     // build list of asset service requests with optional input parameters
-    List<AssetRequest> requests = getAssetRequests(assetPath, request);
+    List<AssetRequest> requests = AssetRequestParser.getAssetRequests(assetPath, request);
 
     // resolve asset service requests
     List<Media> mediaList = resolveMedia(requests, mediaHandler);
@@ -103,28 +96,6 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
     catch (JSONException ex) {
       throw new ServletException("Unable to generate JSON.", ex);
     }
-  }
-
-  private List<AssetRequest> getAssetRequests(String assetPath, SlingHttpServletRequest request) {
-    String[] mediaFormats = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_MEDIAFORMAT), new String[0]);
-    String[] widthStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_WIDTH), new String[0]);
-    String[] heightStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_HEIGHT), new String[0]);
-    int maxParamIndex = NumberUtils.max(mediaFormats.length, widthStrings.length, heightStrings.length);
-
-    List<AssetRequest> requests = new ArrayList<>();
-    if (maxParamIndex == 0) {
-      requests.add(new AssetRequest(assetPath, null, 0, 0));
-    }
-    else {
-      for (int i = 0; i < maxParamIndex; i++) {
-        String mediaFormat = mediaFormats.length > i ? mediaFormats[i] : null;
-        long width = widthStrings.length > i ? NumberUtils.toLong(widthStrings[i]) : 0;
-        long height = heightStrings.length > i ? NumberUtils.toLong(heightStrings[i]) : 0;
-        requests.add(new AssetRequest(assetPath, mediaFormat, width, height));
-      }
-    }
-
-    return requests;
   }
 
   private List<Media> resolveMedia(List<AssetRequest> requests, MediaHandler mediaHandler) {

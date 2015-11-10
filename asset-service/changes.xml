@@ -27,6 +27,10 @@
       <action type="add" dev="sseifert">
         Add alternative data version generation strategy based on affected DAM asset's checkums.
       </action>
+      <action type="update" dev="sseifert" issue="WDAM-1">
+        Add alternative REST interface syntax which accepts parameters encoded in suffix string instead of URL parameters to be more dispatcher-friendly.
+        Old REST format is still supported, but deprecated.
+      </action>
     </release>
 
     <release version="1.1.0" date="2015-08-21">
