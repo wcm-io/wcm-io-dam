@@ -24,6 +24,7 @@ import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_MEDIAFORMAT;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_WIDTH;
 import static org.junit.Assert.assertEquals;
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
+import io.wcm.sling.commons.resource.ImmutableValueMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import java.io.ByteArrayInputStream;
@@ -40,9 +41,9 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Test {@link AssetRequestServlet} using the new REST API with parameters in URL suffix.
+ * Test {@link AssetRequestServlet} using the old REST API with parameters in URL parameters.
  */
-public class AssetRequestServletTest {
+public class AssetRequestServletUrlParamsTest {
 
   private static final String DAM_PATH = "/content/dam/sample";
 
@@ -124,7 +125,9 @@ public class AssetRequestServletTest {
   @Test
   public void testImage_ValidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
-    context.requestPathInfo().setSuffix("/" + RP_MEDIAFORMAT + "=format_32_9.json");
+    context.request().setParameterMap(ImmutableValueMap.builder()
+        .put(RP_MEDIAFORMAT, "format_32_9")
+        .build());
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_OK, context.response().getStatus());
@@ -144,7 +147,9 @@ public class AssetRequestServletTest {
   @Test
   public void testImage_InvalidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
-    context.requestPathInfo().setSuffix("/" + RP_MEDIAFORMAT + "=format_4_3.json");
+    context.request().setParameterMap(ImmutableValueMap.builder()
+        .put(RP_MEDIAFORMAT, "format_4_3")
+        .build());
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_NOT_FOUND, context.response().getStatus());
@@ -153,7 +158,10 @@ public class AssetRequestServletTest {
   @Test
   public void testImage_ValidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
-    context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=270.json");
+    context.request().setParameterMap(ImmutableValueMap.builder()
+        .put(RP_WIDTH, 960)
+        .put(RP_HEIGHT, 270)
+        .build());
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_OK, context.response().getStatus());
@@ -172,7 +180,10 @@ public class AssetRequestServletTest {
   @Test
   public void testImage_InvalidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
-    context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=960.json");
+    context.request().setParameterMap(ImmutableValueMap.builder()
+        .put(RP_WIDTH, 960)
+        .put(RP_HEIGHT, 960)
+        .build());
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_NOT_FOUND, context.response().getStatus());
@@ -181,10 +192,14 @@ public class AssetRequestServletTest {
   @Test
   public void testImage_MultipleSizes() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
-    context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=270"
-        + "/" + RP_WIDTH + "=640," + RP_HEIGHT + "=180"
-        + "/" + RP_WIDTH + "=10," + RP_HEIGHT + "=10"
-        + "/" + RP_WIDTH + "=5.json");
+    context.request().setParameterMap(ImmutableValueMap.builder()
+        .put(RP_WIDTH, new String[] {
+            "960", "640", "10", "5"
+        })
+        .put(RP_HEIGHT, new String[] {
+            "270", "180", "10"
+        })
+        .build());
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_OK, context.response().getStatus());
