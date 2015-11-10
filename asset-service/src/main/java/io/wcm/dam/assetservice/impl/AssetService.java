@@ -87,7 +87,7 @@ public class AssetService implements EventHandler {
       + "This is only used by the 'aggregated checksum' strategy.",
       intValue = AssetService.DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT)
   static final String DATAVERSION_UPDATE_INTERVAL_SEC_PROPERTY = "dataVersionUpdateIntervalSec";
-  static final int DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT = 2 * 60;
+  static final int DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT = 60;
 
   @Property(label = "DAM paths", description = "List of DAM paths for which the asset service should be active. "
       + "If not set, the service is active for all paths.",
