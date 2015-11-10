@@ -29,6 +29,7 @@
       </action>
       <action type="update" dev="sseifert" issue="WDAM-1">
         Add alternative REST interface syntax which accepts parameters encoded in suffix string instead of URL parameters to be more dispatcher-friendly.
+        Old REST format is still supported, but deprecated.
       </action>
     </release>
 
