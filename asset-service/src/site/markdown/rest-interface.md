@@ -3,7 +3,7 @@
 
 ### Resolve assets
 
-To get the asset metadata for a certain asset path use an URL with this synatx:
+To get the asset metadata for a certain asset path use an URL with this syntax:
 
 ```
 <cms-hostname><asset_path>.wcm-io-asset-service.json?<url-params>
@@ -26,17 +26,15 @@ The URL parameters can be specified multiple times. In this case multiple assets
 
 ### Data version
 
-To get the data version for all assets use an URL with this synatx:
+To get the data version for all assets use an URL with this syntax:
 
 ```
 <cms-hostname><asset_root_path>.wcm-io-asset-service-dataversion.json?<url-params>
 ```
 
-The `asset_root_path` is by default /content/dam. If you specified specific subpaths in the [configuration][configuration] you have to use on of those paths to get the matching data version.
+The `asset_root_path` is by default /content/dam. If you specified specific subpaths in the [configuration][configuration] you have to use on of those paths to get the matching data version. The strategy how data versions are generated can be configured there as well.
 
 After the asset root path this suffix `.wcm-io-asset-service-dataversion.json` has to be added. This selector suffix can be changed in the [configuration][configuration].
-
-Currently a timestamp is returned as data version reflecting the latest DAM event. But you should not rely on this and take it just as an arbitrary string. You should not compare data versions, it is not guaranteed that the lexical ordering of two data versions matches with the temporal order.
 
 
 ### Examples
