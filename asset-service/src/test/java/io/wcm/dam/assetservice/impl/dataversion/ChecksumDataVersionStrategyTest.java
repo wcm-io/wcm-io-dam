@@ -26,6 +26,10 @@ import io.wcm.dam.assetservice.impl.DamPathHandler;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.wcm.commons.contenttype.ContentType;
 
+import java.util.Calendar;
+
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -37,7 +41,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.day.cq.dam.api.Asset;
-import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
 
 public class ChecksumDataVersionStrategyTest {
@@ -60,11 +63,11 @@ public class ChecksumDataVersionStrategyTest {
 
     // create some sample assets with SHA-1 checksums
     asset11 = context.create().asset(VALID_PATH_1 + "/asset11", 100, 50, ContentType.JPEG);
-    setSha1Checksum(asset11, "123");
+    setLastModified(asset11, 15 * DateUtils.MILLIS_PER_DAY);
     asset12 = context.create().asset(VALID_PATH_1 + "/asset12", 100, 50, ContentType.JPEG);
-    setSha1Checksum(asset12, "456");
+    setLastModified(asset12, 16 * DateUtils.MILLIS_PER_DAY);
     asset21 = context.create().asset(VALID_PATH_2 + "/asset21", 100, 50, ContentType.JPEG);
-    setSha1Checksum(asset21, "789");
+    setLastModified(asset21, 17 * DateUtils.MILLIS_PER_DAY);
 
     ResourceResolverFactory resourceResolverFactory = context.getService(ResourceResolverFactory.class);
     underTest = new DamPathHandler(new String[] {
@@ -76,14 +79,12 @@ public class ChecksumDataVersionStrategyTest {
     Thread.sleep(500);
   }
 
-  private void setSha1Checksum(Asset asset, String checksum) {
-    String metadataPath = asset.getPath() + "/jcr:content/metadata";
-    Resource metadata = context.resourceResolver().getResource(asset.getPath() + "/jcr:content/metadata");
-    if (metadata == null) {
-      metadata = context.create().resource(metadataPath);
-    }
+  private void setLastModified(Asset asset, long time) {
+    Resource metadata = context.resourceResolver().getResource(asset.getPath() + "/jcr:content");
     ModifiableValueMap props = metadata.adaptTo(ModifiableValueMap.class);
-    props.put(DamConstants.PN_SHA1, checksum);
+    Calendar lastModified = Calendar.getInstance();
+    lastModified.setTimeInMillis(time);
+    props.put(JcrConstants.JCR_LASTMODIFIED, lastModified);
     try {
       context.resourceResolver().commit();
     }
@@ -103,11 +104,11 @@ public class ChecksumDataVersionStrategyTest {
     String dataVersion2 = underTest.getDataVersion(VALID_PATH_2);
     assertNotNull(dataVersion1);
 
-    setSha1Checksum(asset11, "999");
+    setLastModified(asset11, 30 * DateUtils.MILLIS_PER_DAY);
     underTest.handleDamEvent(DamEvent.metadataUpdated(asset11.getPath(), null));
 
     // data version is generated asynchronously
-    Thread.sleep(2000);
+    Thread.sleep(1000);
 
     // data version for path 1 should be changed
     String dataVersion1a = underTest.getDataVersion(VALID_PATH_1);
@@ -120,7 +121,7 @@ public class ChecksumDataVersionStrategyTest {
     assertEquals("data version 2 unchanged", dataVersion2, dataVersion2a);
 
     // wait a bit more and test again
-    Thread.sleep(2000);
+    Thread.sleep(1000);
 
     // data version for path 1 should not be changed
     String dataVersion1b = underTest.getDataVersion(VALID_PATH_1);
@@ -142,7 +143,7 @@ public class ChecksumDataVersionStrategyTest {
     underTest.handleDamEvent(DamEvent.assetCreated(INVALID_PATH + "/asset1.jpg", null));
 
     // data version is generated asynchronously
-    Thread.sleep(2000);
+    Thread.sleep(1000);
 
     String dataVersion2 = underTest.getDataVersion(VALID_PATH_1);
     assertNotNull(dataVersion2);
