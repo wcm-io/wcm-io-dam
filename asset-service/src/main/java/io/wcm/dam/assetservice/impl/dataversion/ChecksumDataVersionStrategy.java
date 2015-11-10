@@ -33,6 +33,7 @@ import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.LoginException;
@@ -61,12 +62,14 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
    */
   private static final String DATAVERSION_NOT_CALCULATED = "-1";
 
+  private final long dataVersionUpdateIntervalMs;
   private final String dataVersionQueryString;
   private final ResourceResolverFactory resourceResolverFactory;
   private final ScheduledExecutorService executor;
 
   private volatile String dataVersion;
-  private volatile boolean dataVersionIsStale;
+  private volatile long dataVersionLastUpdate;
+  private volatile long damEventLastOccurence;
 
   /**
    * @param damPath DAM root path
@@ -79,12 +82,13 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
       ResourceResolverFactory resourceResolverFactory,
       ScheduledExecutorService executor) {
     super(damPath);
+
+    this.dataVersionUpdateIntervalMs = dataVersionUpdateIntervalSec * DateUtils.MILLIS_PER_SECOND;
     this.resourceResolverFactory = resourceResolverFactory;
     this.executor = executor;
     this.dataVersionQueryString = buildDataVersionQueryString(damPath);
 
     this.dataVersion = DATAVERSION_NOT_CALCULATED;
-    this.dataVersionIsStale = true;
 
     if (dataVersionUpdateIntervalSec <= 0) {
       log.warn("{} - Invalid data version update interval: {} sec", damPath, dataVersionUpdateIntervalSec);
@@ -109,8 +113,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
 
   @Override
   public void handleDamEvent(DamEvent damEvent) {
-    // mark data version as stale on any DAM event affecting any of the configured paths
-    dataVersionIsStale = true;
+    damEventLastOccurence = System.currentTimeMillis();
   }
 
   @Override
@@ -126,7 +129,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
 
     @Override
     public void run() {
-      if (!dataVersionIsStale) {
+      if (!isDataVersionStale()) {
         log.debug("{} - Data version '{}' is not stale, skip generation of new data version.", damPath, dataVersion);
         return;
       }
@@ -140,6 +143,16 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
       catch (Throwable ex) {
         log.error(damPath + " - Error generating data version: " + ex.getMessage(), ex);
       }
+    }
+
+    private boolean isDataVersionStale() {
+      if (dataVersionLastUpdate == 0) {
+        return true;
+      }
+      // mark data version is stale if last update was after last DAM event
+      // add an additional interval's length to the comparison because the lucene is updated asynchronously
+      // and thus the DAM event may arrive before the updated SHA-1 string is available in the index
+      return (dataVersionLastUpdate < damEventLastOccurence + dataVersionUpdateIntervalMs);
     }
 
     /**
@@ -175,7 +188,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
         }
 
         dataVersion = Integer.toString(hashCodeBuilder.build());
-        dataVersionIsStale = false;
+        dataVersionLastUpdate = System.currentTimeMillis();
 
         stopwatch.stop();
         log.info("{} - Generated new data version {} for {} assets (duration: {}ms).",

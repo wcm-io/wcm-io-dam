@@ -110,14 +110,28 @@ public class ChecksumDataVersionStrategyTest {
     Thread.sleep(2000);
 
     // data version for path 1 should be changed
-    String dataVersion1new = underTest.getDataVersion(VALID_PATH_1);
-    assertNotNull(dataVersion1new);
-    assertNotEquals("data version 1 changed", dataVersion1, dataVersion1new);
+    String dataVersion1a = underTest.getDataVersion(VALID_PATH_1);
+    assertNotNull(dataVersion1a);
+    assertNotEquals("data version 1 changed", dataVersion1, dataVersion1a);
 
-    // data version for path 2 should be unchanged
-    String dataVersion2new = underTest.getDataVersion(VALID_PATH_2);
-    assertNotNull(dataVersion2new);
-    assertEquals("data version 2 unchanged", dataVersion2, dataVersion2new);
+    // data version for path 2 should not be unchanged
+    String dataVersion2a = underTest.getDataVersion(VALID_PATH_2);
+    assertNotNull(dataVersion2a);
+    assertEquals("data version 2 unchanged", dataVersion2, dataVersion2a);
+
+    // wait a bit more and test again
+    Thread.sleep(2000);
+
+    // data version for path 1 should not be changed
+    String dataVersion1b = underTest.getDataVersion(VALID_PATH_1);
+    assertNotNull(dataVersion1b);
+    assertEquals("data version 1 changed", dataVersion1a, dataVersion1b);
+
+    // data version for path 2 should not be unchanged
+    String dataVersion2b = underTest.getDataVersion(VALID_PATH_2);
+    assertNotNull(dataVersion2b);
+    assertEquals("data version 2 unchanged", dataVersion2a, dataVersion2b);
+
   }
 
   @Test
