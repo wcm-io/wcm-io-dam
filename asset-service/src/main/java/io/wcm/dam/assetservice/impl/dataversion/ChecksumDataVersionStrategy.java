@@ -21,11 +21,13 @@ package io.wcm.dam.assetservice.impl.dataversion;
 
 import io.wcm.sling.commons.adapter.AdaptTo;
 
+import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -44,7 +46,7 @@ import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
 
 /**
- * Strategy that generates a checksum bases on all DAM asset's path and SHA-1 checksums within the DAM asset folder.
+ * Strategy that generates a checksum bases on all DAM asset's path and last modified dates within the DAM asset folder.
  * The aggregated checksum is built by executing a JCR query using the AEM-predefined OAK index
  * <code>damAssetLucene</code>. Executing the query does not touch the JCR content at all, it only reads
  * JCR path and sha-1 string from the lucene index. This query is executed max. once during the "update interval",
@@ -61,6 +63,11 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
    * Default data version that is returned when no data version was yet calculated.
    */
   private static final String DATAVERSION_NOT_CALCULATED = "unknown";
+
+  /**
+   * DAM asset property containing the last modified date.
+   */
+  private static final String LAST_MODIFIED_PROPERTY = JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_LASTMODIFIED;
 
   private final long dataVersionUpdateIntervalMs;
   private final String dataVersionQueryString;
@@ -100,12 +107,12 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
   }
 
   /**
-   * Builds query string to fetch SHA-1 hashsums for all DAM assets lying in on of the configured DAM asset folders.
+   * Builds query string to fetch properties for all DAM assets lying in on of the configured DAM asset folders.
    * @param damPath DAM root path
    * @return SQL2 query string
    */
   private static String buildDataVersionQueryString(String damPath) {
-    return "select [" + JcrConstants.JCR_PATH + "], [jcr:content/metadata/dam:sha1] "
+    return "select [" + JcrConstants.JCR_PATH + "], [" + LAST_MODIFIED_PROPERTY + "] "
         + "from [" + DamConstants.NT_DAM_ASSET + "] as a "
         + "where isdescendantnode(a, '" + damPath + "') "
         + "order by [" + JcrConstants.JCR_PATH + "]";
@@ -151,13 +158,13 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
       }
       // mark data version is stale if last update was after last DAM event
       // add an additional interval's length to the comparison because the lucene is updated asynchronously
-      // and thus the DAM event may arrive before the updated SHA-1 string is available in the index
+      // and thus the DAM event may arrive before the updated properties are available in the index
       return (dataVersionLastUpdate < damEventLastOccurence + dataVersionUpdateIntervalMs);
     }
 
     /**
-     * Generates a data version by fetching all paths and SHA-1 strings from DAM asset folders (lucene index).
-     * The data version is a check sum over all path and SHA-1 strings found.
+     * Generates a data version by fetching all paths and properties from DAM asset folders (lucene index).
+     * The data version is a check sum over all path and selected properties found.
      * @throws LoginException
      * @throws RepositoryException
      */
@@ -178,12 +185,17 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
 
         while (rows.hasNext()) {
           Row row = rows.nextRow();
-          String path = row.getValue(JcrConstants.JCR_PATH).getString();
-          String sha1 = row.getValue("jcr:content/metadata/dam:sha1").getString();
-          log.trace("{} - Found sha-1 at {}: {}", damPath, path, sha1);
+          String path = getStringValue(row, JcrConstants.JCR_PATH);
+          Calendar lastModified = getCalendarValue(row, LAST_MODIFIED_PROPERTY);
+          log.trace("{} - Found sha-1 at {}: {}", damPath, path, lastModified);
 
           hashCodeBuilder.append(path);
-          hashCodeBuilder.append(sha1);
+          if (lastModified != null) {
+            hashCodeBuilder.append(lastModified);
+          }
+          else {
+            log.debug("{} - No last modified date found for {}", damPath, path);
+          }
           assetCount++;
         }
 
@@ -196,6 +208,26 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
       }
       finally {
         resourceResolver.close();
+      }
+    }
+
+    private String getStringValue(Row row, String property) throws RepositoryException {
+      Value value = row.getValue(property);
+      if (value != null) {
+        return value.getString();
+      }
+      else {
+        return null;
+      }
+    }
+
+    private Calendar getCalendarValue(Row row, String property) throws RepositoryException {
+      Value value = row.getValue(property);
+      if (value != null) {
+        return value.getDate();
+      }
+      else {
+        return null;
       }
     }
 

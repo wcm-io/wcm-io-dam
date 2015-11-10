@@ -32,9 +32,9 @@ It should only be used if there is only one AEM instance generating the data ver
 
 #### checksum Data Version Strategy
 
-Strategy that generates a checksum bases on all DAM asset's path and SHA-1 checksums within the DAM asset folder.
+Strategy that generates a checksum bases on all DAM asset's path and last modified dates within the DAM asset folder.
 
-The aggregated checksum is built by executing a JCR query using the AEM-predefined OAK index `damAssetLucene`. Executing the query does not touch the JCR content at all, it only reads JCR path and sha-1 string from the lucene index. This query is executed max. once during the "update interval", and only if DAM events occurred since the last checksum generation.
+The aggregated checksum is built by executing a JCR query using the AEM-predefined OAK index `damAssetLucene`. Executing the query does not touch the JCR content at all, it only reads JCR path and selected properties from the lucene index. This query is executed max. once during the "update interval", and only if DAM events occurred since the last checksum generation.
 
 This strategy produced consistent data versions across multiple AEM instances.
 
