@@ -19,6 +19,8 @@
  */
 package io.wcm.dam.assetservice.impl;
 
+import io.wcm.dam.assetservice.impl.dataversion.ChecksumDataVersionStrategy;
+import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
 import io.wcm.wcm.commons.contenttype.FileExtension;
 
 import java.util.Dictionary;
@@ -31,6 +33,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.ResourceResolverFactory;
@@ -70,8 +73,18 @@ public class AssetService implements EventHandler {
   static final String DATAVERSION_SERVLET_SELECTOR_PROPERTY = "dataVersionServletSelector";
   static final String DATAVERSION_SERVLET_SELECTOR_PROPERTY_DEFAULT = "wcm-io-asset-service-dataversion";
 
+  @Property(label = "Data Version Strategy", description = "Strategy for building the data versions. See documentation for details.",
+      value = AssetService.DATAVERSION_STRATEGY_DEFAULT,
+      options = {
+      @PropertyOption(name = "Timestamp of last DAM event", value = TimestampDataVersionStrategy.STRATEGY),
+      @PropertyOption(name = "Aggregated checksum of DAM assets", value = ChecksumDataVersionStrategy.STRATEGY)
+  })
+  static final String DATAVERSION_STRATEGY_PROPERTY = "dataVersionStrategy";
+  static final String DATAVERSION_STRATEGY_DEFAULT = TimestampDataVersionStrategy.STRATEGY;
+
   @Property(label = "Update Interval (sec)", description = "Updating interval for calculating data versions in seconds. "
-      + "If multiple changes to the DAM folders contents are detected within this interval they are collected.",
+      + "If multiple changes to the DAM folders contents are detected within this interval they are collected. "
+      + "This is only used by the 'aggregated checksum' strategy.",
       intValue = AssetService.DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT)
   static final String DATAVERSION_UPDATE_INTERVAL_SEC_PROPERTY = "dataVersionUpdateIntervalSec";
   static final int DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT = 2 * 60;
@@ -98,13 +111,16 @@ public class AssetService implements EventHandler {
     bundleContext = componentContext.getBundleContext();
     Dictionary config = componentContext.getProperties();
 
-    String assetServletSelector = PropertiesUtil.toString(config.get(ASSET_SERVLET_SELECTOR_PROPERTY), null);
-    String dataVersionServletSelector = PropertiesUtil.toString(config.get(DATAVERSION_SERVLET_SELECTOR_PROPERTY), null);
+    String assetServletSelector = PropertiesUtil.toString(config.get(ASSET_SERVLET_SELECTOR_PROPERTY),
+        ASSET_SERVLET_SELECTOR_PROPERTY_DEFAULT);
+    String dataVersionServletSelector = PropertiesUtil.toString(config.get(DATAVERSION_SERVLET_SELECTOR_PROPERTY),
+        DATAVERSION_SERVLET_SELECTOR_PROPERTY_DEFAULT);
     int dataVersionUpdateIntervalSec = PropertiesUtil.toInteger(config.get(DATAVERSION_UPDATE_INTERVAL_SEC_PROPERTY),
         DATAVERSION_UPDATE_INTERVAL_SEC_DEFAULT);
 
     String[] damPaths = PropertiesUtil.toStringArray(config.get(DAM_PATHS_PROPERTY));
-    damPathHandler = new DamPathHandler(damPaths, dataVersionUpdateIntervalSec, resourceResolverFactory);
+    String dataVersionStrategyId = PropertiesUtil.toString(config.get(DATAVERSION_STRATEGY_PROPERTY), DATAVERSION_STRATEGY_DEFAULT);
+    damPathHandler = new DamPathHandler(damPaths, dataVersionStrategyId, dataVersionUpdateIntervalSec, resourceResolverFactory);
 
     // register servlets to resource types to handle the JSON requests
     // they are registered dynamically because the selectors are configurable

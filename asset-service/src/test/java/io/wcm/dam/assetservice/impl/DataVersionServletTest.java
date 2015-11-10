@@ -34,15 +34,12 @@ import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import com.day.cq.dam.api.DamEvent;
 import com.google.common.collect.ImmutableMap;
 
-//FIXME: switch unit test to oak and activate them again
-@Ignore
 public class DataVersionServletTest {
 
   private static final String VALID_DAM_PATH = "/content/dam/sample";

@@ -63,7 +63,7 @@ class DataVersionServlet extends SlingSafeMethodsServlet {
     // return data version as JSON
     try {
       JSONObject jsonResponse = new JSONObject();
-      jsonResponse.put("dataVersion", damPathHandler.getDataVersion());
+      jsonResponse.put("dataVersion", damPathHandler.getDataVersion(path));
 
       response.setContentType(ContentType.JSON);
       response.setCharacterEncoding(CharEncoding.UTF_8);

@@ -25,7 +25,7 @@
   <parent>
     <groupId>io.wcm</groupId>
     <artifactId>io.wcm.dam.parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
@@ -49,6 +49,27 @@
   </properties>
 
   <dependencies>
+
+    <!-- Test dependencies for OAK repository-based tests (has to be placed first to overlay outdated deps from AEM60 API) -->
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.testing.sling-mock-oak</artifactId>
+      <version>1.0.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.sling</groupId>
+          <artifactId>org.apache.sling.testing.sling-mock</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- Depend on oak-jcr, which pulls in all needed Oak artifacts -->
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>oak-jcr</artifactId>
+      <version>1.2.2</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>io.wcm</groupId>

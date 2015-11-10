@@ -19,30 +19,20 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.sling.commons.adapter.AdaptTo;
+import io.wcm.dam.assetservice.impl.dataversion.ChecksumDataVersionStrategy;
+import io.wcm.dam.assetservice.impl.dataversion.DataVersionStrategy;
+import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryManager;
-import javax.jcr.query.QueryResult;
-import javax.jcr.query.Row;
-import javax.jcr.query.RowIterator;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.time.StopWatch;
-import org.apache.jackrabbit.JcrConstants;
-import org.apache.sling.api.resource.LoginException;
-import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,56 +46,63 @@ import com.google.common.collect.ImmutableSet;
  * a new data version on each DAM content change relevant for the DAM asset services consumers.
  * Make sure you call the shutdown method when the instance is no longer needed.
  */
-class DamPathHandler {
+public class DamPathHandler {
 
   /**
    * Full DAM path is used if not DAM path is given in configuration.
    */
   private static final String DEFAULT_DAM_PATH = DamConstants.MOUNTPOINT_ASSETS;
 
-  /**
-   * Default data version that is returned when no data version was yet calculated.
-   */
-  private static final String DATAVERSION_NOT_CALCULATED = "-1";
-
   private final Set<String> damPaths;
   private final Pattern damPathsPattern;
-  private final String dataVersionQueryString;
-  private final ResourceResolverFactory resourceResolverFactory;
   private final ScheduledExecutorService executor;
-
-  private volatile String dataVersion;
-  private volatile boolean dataVersionIsStale;
+  private final Map<String, DataVersionStrategy> dataVersionStrategies;
 
   private static final Logger log = LoggerFactory.getLogger(DamPathHandler.class);
 
-  public DamPathHandler(final String[] configuredDamPaths, int dataVersionUpdateIntervalSec,
+  /**
+   * @param configuredDamPaths Configured DAM paths
+   * @param dataVersionStrategyId Data version strategy
+   * @param dataVersionUpdateIntervalSec Update interface
+   * @param resourceResolverFactory Resource resolver factory
+   */
+  public DamPathHandler(final String[] configuredDamPaths,
+      String dataVersionStrategyId,
+      int dataVersionUpdateIntervalSec,
       ResourceResolverFactory resourceResolverFactory) {
+
+
     this.damPaths = validateDamPaths(configuredDamPaths);
     this.damPathsPattern = buildDamPathsPattern(this.damPaths);
-    this.dataVersionQueryString = buildDataVersionQueryString(this.damPaths);
-    this.resourceResolverFactory = resourceResolverFactory;
+
+    log.debug("Start executor for DamPathHandler");
     this.executor = Executors.newSingleThreadScheduledExecutor();
 
-    this.dataVersion = DATAVERSION_NOT_CALCULATED;
-    this.dataVersionIsStale = true;
+    dataVersionStrategies = new HashMap<>();
+    for (String damPath : this.damPaths) {
+      DataVersionStrategy dataVersionStrategy = getDataVersionStrategy(damPath, dataVersionStrategyId,
+          dataVersionUpdateIntervalSec, resourceResolverFactory, this.executor);
+      dataVersionStrategies.put(damPath, dataVersionStrategy);
+    }
+  }
 
-    if (this.damPaths.size() == 0) {
-      log.warn("No DAM paths configured.");
+  private static DataVersionStrategy getDataVersionStrategy(String damPath, String dataVersionStrategyId,
+      int dataVersionUpdateIntervalSec, ResourceResolverFactory resourceResolverFactory,
+      ScheduledExecutorService executor) {
+    if (StringUtils.equals(dataVersionStrategyId, TimestampDataVersionStrategy.STRATEGY)) {
+      return new TimestampDataVersionStrategy(damPath);
     }
-    else if (dataVersionUpdateIntervalSec <= 0) {
-      log.warn("Invalid data version update interval: " + dataVersionUpdateIntervalSec + " sec");
+    if (StringUtils.equals(dataVersionStrategyId, ChecksumDataVersionStrategy.STRATEGY)) {
+      return new ChecksumDataVersionStrategy(damPath, dataVersionUpdateIntervalSec, resourceResolverFactory, executor);
     }
-    else {
-      Runnable task = new UpdateDataVersionTask();
-      this.executor.scheduleWithFixedDelay(task, 0, dataVersionUpdateIntervalSec, TimeUnit.SECONDS);
-    }
+    throw new IllegalArgumentException("Invalid data version strategy: " + dataVersionStrategyId);
   }
 
   /**
    * Shuts down the executor service.
    */
   public void shutdown() {
+    log.debug("Shutdown executor for DamPathHandler");
     this.executor.shutdownNow();
   }
 
@@ -145,27 +142,6 @@ class DamPathHandler {
   }
 
   /**
-   * Builds query string to fetch SHA-1 hashsums for all DAM assets lying in on of the configured DAM asset folders.
-   * @param damPaths DAM folder paths or empty/null if all should be handled.
-   * @return SQL2 query string
-   */
-  private static String buildDataVersionQueryString(Set<String> damPaths) {
-    StringBuilder statement = new StringBuilder("select [" + JcrConstants.JCR_PATH + "], [jcr:content/metadata/dam:sha1] " +
-        " from [" + DamConstants.NT_DAM_ASSET + "] as a " +
-        " where ");
-    Iterator<String> damPathsIterator = damPaths.iterator();
-    while (damPathsIterator.hasNext()) {
-      String damPath = damPathsIterator.next();
-      statement.append(" isdescendantnode(a, '" + damPath + "')");
-      if (damPathsIterator.hasNext()) {
-        statement.append(" or");
-      }
-    }
-    statement.append(" order by [" + JcrConstants.JCR_PATH + "]");
-    return statement.toString();
-  }
-
-  /**
    * Checks if the given DAM asset is allowed to process.
    * @param assetPath Asset path
    * @return true if processing is allowed.
@@ -187,82 +163,42 @@ class DamPathHandler {
    * Get current data version for all allowed assets.
    * @return Data version
    */
-  public String getDataVersion() {
-    return dataVersion;
-  }
-
-  public void handleDamEvent(DamEvent event) {
-    if (isAllowedAssetPath(event.getAssetPath())) {
-      // mark data version as stale on any DAM event affecting any of the configured paths
-      dataVersionIsStale = true;
+  public String getDataVersion(String damPath) {
+    DataVersionStrategy dataVersionStrategy = this.dataVersionStrategies.get(damPath);
+    if (dataVersionStrategy != null) {
+      return dataVersionStrategy.getDataVersion();
+    }
+    else {
+      return null;
     }
   }
-
 
   /**
-   * Scheduled task to generate a new data version via JCR query.
+   * Handle DAM event.
+   * @param event DAM event
    */
-  private class UpdateDataVersionTask implements Runnable {
-
-    @Override
-    public void run() {
-      if (!dataVersionIsStale) {
-        log.debug("Data version '{}' is not stale, skip generation of new data version.", dataVersion);
-      }
-      try {
-        log.debug("Data version '{}' is stale, start generation of new data version.", dataVersion);
-        generateDataVersion();
-      }
-      catch (LoginException ex) {
-        log.error("Unable to get service resource resolver, please check service user configuration: " + ex.getMessage());
-      }
-      catch (Throwable ex) {
-        log.error("Error generating data version: " + ex.getMessage(), ex);
+  public void handleDamEvent(DamEvent event) {
+    if (isAllowedAssetPath(event.getAssetPath())) {
+      // route event to matching data version strategy instance
+      DataVersionStrategy dataVersionStrategy = getMatchingDataVersionStrategy(event.getAssetPath());
+      if (dataVersionStrategy != null) {
+        dataVersionStrategy.handleDamEvent(event);
       }
     }
+  }
 
-    /**
-     * Generates a data version by fetching all paths and SHA-1 strings from DAM asset folders (lucene index).
-     * The data version is a check sum over all path and SHA-1 strings found.
-     * @throws LoginException
-     * @throws RepositoryException
-     */
-    private void generateDataVersion() throws LoginException, RepositoryException {
-      ResourceResolver resourceResolver = resourceResolverFactory.getServiceResourceResolver(null);
-      try {
-        Session session = AdaptTo.notNull(resourceResolver, Session.class);
-        QueryManager queryManager = session.getWorkspace().getQueryManager();
-        Query query = queryManager.createQuery(dataVersionQueryString, Query.JCR_SQL2);
-        QueryResult result = query.execute();
-        RowIterator rows = result.getRows();
-
-        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        int assetCount = 0;
-        StopWatch stopwatch = new StopWatch();
-        stopwatch.start();
-
-        while (rows.hasNext()) {
-          Row row = rows.nextRow();
-          String path = row.getValue(JcrConstants.JCR_PATH).getString();
-          String sha1 = row.getValue("jcr:content/metadata/dam:sha1").getString();
-          log.trace("Found sha-1 at {}: {}", path, sha1);
-
-          hashCodeBuilder.append(path);
-          hashCodeBuilder.append(sha1);
-          assetCount++;
-        }
-
-        dataVersion = Integer.toString(hashCodeBuilder.build());
-        dataVersionIsStale = false;
-
-        stopwatch.stop();
-        log.info("Generated new data version {} from {} assets (duration: {}ms).", dataVersion, assetCount, stopwatch.getTime());
-      }
-      finally {
-        resourceResolver.close();
+  private DataVersionStrategy getMatchingDataVersionStrategy(String path) {
+    // shortcut if there is only one path configured
+    if (dataVersionStrategies.size() == 1) {
+      return dataVersionStrategies.values().iterator().next();
+    }
+    // find matching strategy for path
+    for (DataVersionStrategy dataVersionStrategy : this.dataVersionStrategies.values()) {
+      if (dataVersionStrategy.matches(path)) {
+        return dataVersionStrategy;
       }
     }
-
+    return null;
   }
 
 }
