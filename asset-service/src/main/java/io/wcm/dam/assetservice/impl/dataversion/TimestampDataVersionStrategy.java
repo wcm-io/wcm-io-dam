@@ -19,10 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl.dataversion;
 
-import java.util.Calendar;
-
-import org.apache.jackrabbit.util.ISO8601;
-
 import com.day.cq.dam.api.DamEvent;
 
 /**
@@ -66,7 +62,7 @@ public class TimestampDataVersionStrategy extends DataVersionStrategy {
   private void generateNewDataVersion() {
     // use timestamp as data version. clashing of versions if two are generated at exactly the same time point
     // is not the problem, because the data version can then be the same.
-    dataVersion = ISO8601.format(Calendar.getInstance());
+    dataVersion = Long.toString(System.currentTimeMillis());
     log.debug("{} - Generated new data version: {}", damPath, dataVersion);
   }
 
