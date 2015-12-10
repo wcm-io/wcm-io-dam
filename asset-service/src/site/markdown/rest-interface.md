@@ -38,7 +38,7 @@ To get the data version for all assets use an URL with this syntax:
 <cms-hostname><asset_root_path>.wcm-io-asset-service-dataversion.json
 ```
 
-The `asset_root_path` is by default /content/dam. If you specified specific sub paths in the [configuration][configuration] you have to use on of those paths to get the matching data version. The strategy how data versions are generated can be configured there as well.
+The `asset_root_path` is by default /content/dam. If you specified specific sub paths in the [configuration][configuration] you have to use one of those paths to get the matching data version. The strategy how data versions are generated can be configured there as well.
 
 After the asset root path this suffix `.wcm-io-asset-service-dataversion.json` has to be added. This selector suffix can be changed in the [configuration][configuration].
 
