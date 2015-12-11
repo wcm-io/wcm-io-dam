@@ -19,13 +19,11 @@
  */
 package io.wcm.dam.assetservice.impl;
 
+import io.wcm.wcm.commons.caching.CacheHeader;
 import io.wcm.wcm.commons.contenttype.ContentType;
-
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -68,6 +66,7 @@ class DataVersionServlet extends SlingSafeMethodsServlet {
       response.setContentType(ContentType.JSON);
       response.setCharacterEncoding(CharEncoding.UTF_8);
       response.getWriter().write(jsonResponse.toString());
+      CacheHeader.setNonCachingHeaders(response);
     }
     catch (JSONException ex) {
       throw new ServletException("Unable to generate JSON.", ex);

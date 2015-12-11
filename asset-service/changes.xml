@@ -24,6 +24,9 @@
   <body>
 
     <release version="1.2.0" date="not released">
+      <action type="fix" dev="amuthmann" issue="WDAM-2">
+        Added non-caching header for Dataversion call.
+      </action>
       <action type="add" dev="sseifert">
         Add alternative data version generation strategy based on affected DAM asset's checkums.
       </action>
