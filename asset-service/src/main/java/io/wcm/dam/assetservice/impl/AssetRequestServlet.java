@@ -19,11 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.handler.media.Media;
-import io.wcm.handler.media.MediaHandler;
-import io.wcm.handler.media.Rendition;
-import io.wcm.wcm.commons.contenttype.ContentType;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +36,11 @@ import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.wcm.handler.media.Media;
+import io.wcm.handler.media.MediaHandler;
+import io.wcm.handler.media.Rendition;
+import io.wcm.wcm.commons.contenttype.ContentType;
+
 /**
  * Implements a simple REST interface that allows resolving DAM asset paths to URLs.
  * For image assets resolving to specific dimensions is supported.
@@ -52,7 +52,7 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
 
   private static final Logger log = LoggerFactory.getLogger(AssetRequestServlet.class);
 
-  public AssetRequestServlet(DamPathHandler damPathHandler) {
+  AssetRequestServlet(DamPathHandler damPathHandler) {
     this.damPathHandler = damPathHandler;
   }
 

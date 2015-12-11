@@ -19,11 +19,11 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.wcm.commons.caching.CacheHeader;
-import io.wcm.wcm.commons.contenttype.ContentType;
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -32,6 +32,9 @@ import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.wcm.wcm.commons.caching.CacheHeader;
+import io.wcm.wcm.commons.contenttype.ContentType;
 
 /**
  * Returns generated data version if called on the root of an allowed asset path in DAM.
@@ -43,7 +46,7 @@ class DataVersionServlet extends SlingSafeMethodsServlet {
 
   private static final Logger log = LoggerFactory.getLogger(DataVersionServlet.class);
 
-  public DataVersionServlet(DamPathHandler damPathHandler) {
+  DataVersionServlet(DamPathHandler damPathHandler) {
     this.damPathHandler = damPathHandler;
   }
 
