@@ -22,8 +22,6 @@ package io.wcm.dam.assetservice.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
-import io.wcm.testing.mock.aem.junit.AemContext;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,6 +37,9 @@ import org.junit.Test;
 
 import com.day.cq.dam.api.DamEvent;
 import com.google.common.collect.ImmutableMap;
+
+import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
+import io.wcm.testing.mock.aem.junit.AemContext;
 
 public class DataVersionServletTest {
 
@@ -112,6 +113,10 @@ public class DataVersionServletTest {
 
   private String getDataVersion(MockSlingHttpServletResponse response) throws JSONException {
     JSONObject json = new JSONObject(response.getOutputAsString());
+
+    // asset non-caching header is set (pick only one header)
+    assertEquals("no-cache", response.getHeader("Dispatcher"));
+
     return json.getString("dataVersion");
   }
 
