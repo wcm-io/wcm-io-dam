@@ -3,17 +3,23 @@
 
 ### Resolve assets
 
-To get the asset metadata for a certain asset path use an URL with this synatx:
+To get the asset metadata for a certain asset path use an URL with this syntax:
 
 ```
-<cms-hostname><asset_path>.wcm-io-asset-service.json?<url-params>
+<cms-hostname><asset_path>.wcm-io-asset-service.json/<suffix-params-1>/.../<suffix-params-n>.json
 ```
 
-After the asset path the suffix `.wcm-io-asset-service.json` has to be added. This selector suffix can be changed in the [configuration][configuration].
+After the asset path the selector `.wcm-io-asset-service.json` has to be added. This selector name can be changed in the [configuration][configuration].
 
-The URL parameters are optional. Supported parameters:
+Optionally a set of further suffix parameters each separated by '`/`' can be added. Each set consists of key-value pairs. Each pair is separated by '`,`', the key and value are separated by '`=`'. The whole suffix string is terminated with another `.json`. Example:
 
-| URL parameter | Multiple | Description
+```
+<cms-hostname><asset_path>.wcm-io-asset-service.json/width=200,height=100/mediaFormat=mediaformat1.json
+```
+
+The list of supported parameters in the suffix sets:
+
+| Parameter     | Multiple | Description
 |---------------|:--------:|-------------
 | `mediaFormat` | X        | Specifies internal media format name of the CMS application
 | `width`       | X        | Requested width of the image (in px)
@@ -21,22 +27,20 @@ The URL parameters are optional. Supported parameters:
 
 Width and height have to be specified always together. If the asset does not comply to this with it is tried to generated a virtual rendition by resizing it. This is only possible if the width/height ratio matches and the asset is not smaller than the requested size.
 
-The URL parameters can be specified multiple times. In this case multiple assets are resolved and returned as array.
+If multiple suffix parameter sets are specified multiple assets are resolved and returned as array.
 
 
 ### Data version
 
-To get the data version for all assets use an URL with this synatx:
+To get the data version for all assets use an URL with this syntax:
 
 ```
-<cms-hostname><asset_root_path>.wcm-io-asset-service-dataversion.json?<url-params>
+<cms-hostname><asset_root_path>.wcm-io-asset-service-dataversion.json
 ```
 
-The `asset_root_path` is by default /content/dam. If you specified specific subpaths in the [configuration][configuration] you have to use on of those paths to get the matching data version.
+The `asset_root_path` is by default /content/dam. If you specified specific sub paths in the [configuration][configuration] you have to use one of those paths to get the matching data version. The strategy how data versions are generated can be configured there as well.
 
 After the asset root path this suffix `.wcm-io-asset-service-dataversion.json` has to be added. This selector suffix can be changed in the [configuration][configuration].
-
-Currently a timestamp is returned as data version reflecting the latest DAM event. But you should not rely on this and take it just as an arbitrary string. You should not compare data versions, it is not guaranteed that the lexical ordering of two data versions matches with the temporal order.
 
 
 ### Examples
@@ -61,7 +65,7 @@ Response:
 
 #### Image Asset with multiple sizes
 
-URL: `http://localhost:4503/content/dam/sample/myteaser.jpg.wcm-io-asset-service.json?width=273&height=154&width=546&height=307`
+URL: `http://localhost:4503/content/dam/sample/myteaser.jpg.wcm-io-asset-service.json/width=273,height=154/width=546,height=307.json`
 
 Response:
 
@@ -102,3 +106,11 @@ Response:
 
 
 [configuration]: configuration.html
+
+
+
+### Deprecated REST Interface syntax
+
+DAM asset service up to version 1.1.0 supported only an old-style REST interface using URL parameters instead of suffix-encoded parameters. This syntax is still supported, but is deprecated because it is not dispatcher-friendly.
+
+Example URL: `http://localhost:4503/content/dam/sample/myteaser.jpg.wcm-io-asset-service.json?width=273&height=154&width=546&height=307`

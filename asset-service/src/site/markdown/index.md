@@ -8,7 +8,7 @@ A RESTful service for resolving URLs to assets and renditions.
 <dependency>
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.dam.asset-service</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
@@ -21,7 +21,7 @@ A RESTful service for resolving URLs to assets and renditions.
 
 ### Overview
 
-The DAM Asset Services publishes a REST interface which allows to check if a DAM asset path is valid and replicated to a AEM instance. It resolves URLs to real or virtual renditions rendered on-the-fly.
+The DAM Asset Services publishes a REST interface which allows to check if a DAM asset path is valid and replicated to a AEM instance. It resolves URLs to real or virtual renditions rendered on-the-fly. A data version is generated for each configured DAM asset folder to check if any asset was changed since last check.
 
 Internally the [wcm.io Media Handler][media-handler] is used for building the URLs to the renditions. They can be requested by dimensions or media formats.
 

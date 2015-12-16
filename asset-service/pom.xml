@@ -25,13 +25,13 @@
   <parent>
     <groupId>io.wcm</groupId>
     <artifactId>io.wcm.dam.parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.dam.asset-service</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <name>DAM Asset Service</name>
@@ -50,18 +50,45 @@
 
   <dependencies>
 
+    <!-- Test dependencies for OAK repository-based tests (has to be placed first to overlay outdated deps from AEM60 API) -->
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.testing.sling-mock-oak</artifactId>
+      <version>1.0.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.sling</groupId>
+          <artifactId>org.apache.sling.testing.sling-mock</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- Depend on oak-jcr, which pulls in all needed Oak artifacts -->
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>oak-jcr</artifactId>
+      <version>1.2.2</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.handler.media</artifactId>
       <version>0.8.0</version>
       <scope>compile</scope>
     </dependency>
-    
+
+    <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.testing.aem-mock</artifactId>
-      <version>1.3.2</version>
+      <version>1.6.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

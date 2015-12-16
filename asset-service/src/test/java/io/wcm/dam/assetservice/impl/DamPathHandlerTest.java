@@ -19,16 +19,12 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
-
-import com.day.cq.dam.api.DamEvent;
 
 public class DamPathHandlerTest {
 
@@ -38,16 +34,18 @@ public class DamPathHandlerTest {
 
   private DamPathHandler underTest;
 
-  @Before
-  public void setUp() {
-    underTest = new DamPathHandler(new String[] {
-        VALID_PATH_1,
-        VALID_PATH_2
-    });
+  @After
+  public void tearDown() {
+    underTest.shutdown();
   }
 
   @Test
   public void testIsAllowedAssetPath() throws Exception {
+    underTest = new DamPathHandler(new String[] {
+        VALID_PATH_1,
+        VALID_PATH_2
+    }, TimestampDataVersionStrategy.STRATEGY, 0, null);
+
     // valid asset paths
     assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
     assertTrue(underTest.isAllowedAssetPath(VALID_PATH_2 + "/sub2/asset2.jpg"));
@@ -59,6 +57,11 @@ public class DamPathHandlerTest {
 
   @Test
   public void testIsAllowedDataVersionPath() throws Exception {
+    underTest = new DamPathHandler(new String[] {
+        VALID_PATH_1,
+        VALID_PATH_2
+    }, TimestampDataVersionStrategy.STRATEGY, 0, null);
+
     // valid root paths
     assertTrue(underTest.isAllowedDataVersionPath(VALID_PATH_1));
     assertTrue(underTest.isAllowedDataVersionPath(VALID_PATH_2));
@@ -72,56 +75,26 @@ public class DamPathHandlerTest {
   }
 
   @Test
-  public void testNewDataVersionOnValidPathEvent() throws Exception {
-    String dataVersion1 = underTest.getDataVersion();
-    assertNotNull(dataVersion1);
-
-    // make sure generate data version timestamp does not clash
-    Thread.sleep(5);
-
-    underTest.handleDamEvent(DamEvent.assetCreated(VALID_PATH_1 + "/asset1.jpg", null));
-
-    String dataVersion2 = underTest.getDataVersion();
-    assertNotNull(dataVersion2);
-    assertNotEquals("data version", dataVersion1, dataVersion2);
-  }
-
-  @Test
-  public void testSameDataVersionOnInvalidPathEvent() throws Exception {
-    String dataVersion1 = underTest.getDataVersion();
-    assertNotNull(dataVersion1);
-
-    // make sure generate data version timestamp does not clash
-    Thread.sleep(5);
-
-    underTest.handleDamEvent(DamEvent.assetCreated(INVALID_PATH + "/asset1.jpg", null));
-
-    String dataVersion2 = underTest.getDataVersion();
-    assertNotNull(dataVersion2);
-    assertEquals("data version", dataVersion1, dataVersion2);
-  }
-
-  @Test
   public void testWithNullPaths() {
-    DamPathHandler handler = new DamPathHandler(null);
-    assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
-    assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
+    underTest = new DamPathHandler(null, TimestampDataVersionStrategy.STRATEGY, 0, null);
+    assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }
 
   @Test
   public void testWithEmptyArray() {
-    DamPathHandler handler = new DamPathHandler(new String[0]);
-    assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
-    assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
+    underTest = new DamPathHandler(new String[0], TimestampDataVersionStrategy.STRATEGY, 0, null);
+    assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }
 
   @Test
   public void testWithEmptyPaths() {
-    DamPathHandler handler = new DamPathHandler(new String[] {
-      ""
-    });
-    assertTrue(handler.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
-    assertTrue(handler.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
+    underTest = new DamPathHandler(new String[] {
+        ""
+    }, TimestampDataVersionStrategy.STRATEGY, 0, null);
+    assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
+    assertTrue(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }
 
 }

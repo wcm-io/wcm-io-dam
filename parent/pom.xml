@@ -25,13 +25,13 @@
   <parent>
     <groupId>io.wcm</groupId>
     <artifactId>io.wcm.parent_toplevel</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.10</version>
     <relativePath />
   </parent>
 
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.dam.parent</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2</version>
   <packaging>pom</packaging>
 
   <name>DAM Extensions</name>

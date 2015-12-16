@@ -19,8 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.wcm.commons.contenttype.ContentType;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -35,6 +33,9 @@ import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.wcm.wcm.commons.caching.CacheHeader;
+import io.wcm.wcm.commons.contenttype.ContentType;
+
 /**
  * Returns generated data version if called on the root of an allowed asset path in DAM.
  */
@@ -45,7 +46,7 @@ class DataVersionServlet extends SlingSafeMethodsServlet {
 
   private static final Logger log = LoggerFactory.getLogger(DataVersionServlet.class);
 
-  public DataVersionServlet(DamPathHandler damPathHandler) {
+  DataVersionServlet(DamPathHandler damPathHandler) {
     this.damPathHandler = damPathHandler;
   }
 
@@ -63,11 +64,12 @@ class DataVersionServlet extends SlingSafeMethodsServlet {
     // return data version as JSON
     try {
       JSONObject jsonResponse = new JSONObject();
-      jsonResponse.put("dataVersion", damPathHandler.getDataVersion());
+      jsonResponse.put("dataVersion", damPathHandler.getDataVersion(path));
 
       response.setContentType(ContentType.JSON);
       response.setCharacterEncoding(CharEncoding.UTF_8);
       response.getWriter().write(jsonResponse.toString());
+      CacheHeader.setNonCachingHeaders(response);
     }
     catch (JSONException ex) {
       throw new ServletException("Unable to generate JSON.", ex);
