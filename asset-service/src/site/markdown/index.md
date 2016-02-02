@@ -2,15 +2,8 @@
 
 A RESTful service for resolving URLs to assets and renditions.
 
-### Maven Dependency
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.wcm/io.wcm.dam.asset-service/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.wcm/io.wcm.dam.asset-service)
 
-```xml
-<dependency>
-  <groupId>io.wcm</groupId>
-  <artifactId>io.wcm.dam.asset-service</artifactId>
-  <version>1.2.0</version>
-</dependency>
-```
 
 ### Documentation
 
