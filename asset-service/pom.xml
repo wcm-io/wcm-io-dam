@@ -74,7 +74,7 @@
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.handler.media</artifactId>
-      <version>0.8.0</version>
+      <version>0.10.0</version>
       <scope>compile</scope>
     </dependency>
 
@@ -117,7 +117,7 @@
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.testing.wcm-io-mock.handler</artifactId>
-      <version>0.5.2</version>
+      <version>0.5.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
