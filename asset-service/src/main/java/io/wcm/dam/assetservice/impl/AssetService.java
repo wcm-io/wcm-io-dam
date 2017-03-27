@@ -19,10 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.dam.assetservice.impl.dataversion.ChecksumDataVersionStrategy;
-import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
-import io.wcm.wcm.commons.contenttype.FileExtension;
-
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -49,6 +45,10 @@ import org.slf4j.LoggerFactory;
 
 import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
+
+import io.wcm.dam.assetservice.impl.dataversion.ChecksumDataVersionStrategy;
+import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
+import io.wcm.wcm.commons.contenttype.FileExtension;
 
 /**
  * Implements a simple REST interface that allows resolving DAM asset paths to URLs.
@@ -99,8 +99,8 @@ public class AssetService implements EventHandler {
 
   private DamPathHandler damPathHandler;
   private BundleContext bundleContext;
-  private ServiceRegistration assetRequestServletReg;
-  private ServiceRegistration dataVersionServletReg;
+  private ServiceRegistration<Servlet> assetRequestServletReg;
+  private ServiceRegistration<Servlet> dataVersionServletReg;
 
   private static final Logger log = LoggerFactory.getLogger(AssetService.class);
 
@@ -156,7 +156,7 @@ public class AssetService implements EventHandler {
     return (DataVersionServlet)bundleContext.getService(dataVersionServletReg.getReference());
   }
 
-  private static <T extends Servlet> ServiceRegistration registerServlet(BundleContext bundleContext, T servletInstance,
+  private static <T extends Servlet> ServiceRegistration<Servlet> registerServlet(BundleContext bundleContext, T servletInstance,
       String resourceType, String selector) {
     if (StringUtils.isEmpty(selector)) {
       throw new IllegalArgumentException("No selector defined for " + servletInstance.getClass().getName() + " - skipping servlet registration.");
@@ -165,7 +165,7 @@ public class AssetService implements EventHandler {
     config.put("sling.servlet.resourceTypes", resourceType);
     config.put("sling.servlet.selectors", selector);
     config.put("sling.servlet.extensions", FileExtension.JSON);
-    return bundleContext.registerService(Servlet.class.getName(), servletInstance, config);
+    return bundleContext.registerService(Servlet.class, servletInstance, config);
   }
 
 }

@@ -19,19 +19,23 @@
  */
 package io.wcm.dam.assetservice.impl.testcontext;
 
-import static io.wcm.testing.mock.wcmio.config.ContextPlugins.WCMIO_CONFIG;
+import static io.wcm.testing.mock.wcmio.caconfig.ContextPlugins.WCMIO_CACONFIG;
+import static io.wcm.testing.mock.wcmio.caconfig.compat.ContextPlugins.WCMIO_CACONFIG_COMPAT;
 import static io.wcm.testing.mock.wcmio.handler.ContextPlugins.WCMIO_HANDLER;
 import static io.wcm.testing.mock.wcmio.sling.ContextPlugins.WCMIO_SLING;
+import static org.apache.sling.testing.mock.caconfig.ContextPlugins.CACONFIG;
 
 import java.io.IOException;
 
 import org.apache.sling.api.resource.PersistenceException;
 
-import io.wcm.config.spi.ApplicationProvider;
+import io.wcm.caconfig.application.spi.ApplicationProvider;
+import io.wcm.config.spi.ConfigurationFinderStrategy;
 import io.wcm.handler.media.spi.MediaFormatProvider;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
+import io.wcm.testing.mock.wcmio.caconfig.compat.MockCAConfig;
 
 /**
  * Sets up {@link AemContext} for unit tests in this application.
@@ -46,7 +50,8 @@ public final class AppAemContext {
 
   public static AemContext newAemContext() {
     return new AemContextBuilder()
-        .plugin(WCMIO_SLING, WCMIO_CONFIG, WCMIO_HANDLER)
+        .plugin(CACONFIG)
+        .plugin(WCMIO_SLING, WCMIO_CACONFIG, WCMIO_CACONFIG_COMPAT, WCMIO_HANDLER)
         .afterSetUp(SETUP_CALLBACK)
         .build();
   }
@@ -57,8 +62,17 @@ public final class AppAemContext {
   private static final AemContextCallback SETUP_CALLBACK = new AemContextCallback() {
     @Override
     public void execute(AemContext context) throws PersistenceException, IOException {
+
+      // application provider
       context.registerService(ApplicationProvider.class, new ApplicationProviderImpl());
+
+      // configuration finder strategy
+      context.registerService(ConfigurationFinderStrategy.class,
+          MockCAConfig.configurationFinderStrategyAbsoluteParent(APPLICATION_ID, 3));
+
+      // register media formats
       context.registerService(MediaFormatProvider.class, new MediaFormatProviderImpl());
+
     }
   };
 
