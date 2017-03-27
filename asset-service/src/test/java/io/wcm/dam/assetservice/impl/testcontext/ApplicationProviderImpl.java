@@ -23,17 +23,15 @@ import static io.wcm.dam.assetservice.impl.testcontext.AppAemContext.APPLICATION
 
 import java.util.regex.Pattern;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.Resource;
+import org.osgi.service.component.annotations.Component;
 
 import io.wcm.caconfig.application.spi.ApplicationProvider;
 
 /**
  * Application provider
  */
-@Component(immediate = true)
-@Service(ApplicationProvider.class)
+@Component(immediate = true, service = ApplicationProvider.class)
 public class ApplicationProviderImpl implements ApplicationProvider {
 
   private static final Pattern PATH_PATTERN = Pattern.compile("^/content(/dam)?(/.*)?$");
