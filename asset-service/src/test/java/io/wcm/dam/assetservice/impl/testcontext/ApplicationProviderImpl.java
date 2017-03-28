@@ -29,8 +29,10 @@ import org.osgi.service.component.annotations.Component;
 import io.wcm.caconfig.application.spi.ApplicationProvider;
 
 /**
- * Application provider
+ * TODO: get rid of dependency to ApplicationProvider
+ * @deprecated Get rid of application support
  */
+@Deprecated
 @Component(immediate = true, service = ApplicationProvider.class)
 public class ApplicationProviderImpl implements ApplicationProvider {
 
