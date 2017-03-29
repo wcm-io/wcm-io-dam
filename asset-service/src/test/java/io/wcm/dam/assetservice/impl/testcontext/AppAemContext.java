@@ -28,10 +28,6 @@ import java.io.IOException;
 
 import org.apache.sling.api.resource.PersistenceException;
 
-import io.wcm.caconfig.application.impl.ApplicationAdapterFactory;
-import io.wcm.caconfig.application.impl.ApplicationFinderImpl;
-import io.wcm.caconfig.application.impl.ApplicationImplementationPicker;
-import io.wcm.caconfig.application.spi.ApplicationProvider;
 import io.wcm.handler.media.spi.MediaFormatProvider;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
@@ -42,9 +38,6 @@ import io.wcm.testing.mock.wcmio.caconfig.MockCAConfig;
  * Sets up {@link AemContext} for unit tests in this application.
  */
 public final class AppAemContext {
-
-  // TODO: remove APPLICATION_ID
-  public static final String APPLICATION_ID = "/apps/testapp";
 
   private AppAemContext() {
     // static methods only
@@ -64,12 +57,6 @@ public final class AppAemContext {
   private static final AemContextCallback SETUP_CALLBACK = new AemContextCallback() {
     @Override
     public void execute(AemContext context) throws PersistenceException, IOException {
-
-      // application provider
-      context.registerInjectActivateService(new ApplicationFinderImpl());
-      context.registerInjectActivateService(new ApplicationImplementationPicker());
-      context.registerInjectActivateService(new ApplicationAdapterFactory());
-      context.registerService(ApplicationProvider.class, new ApplicationProviderImpl());
 
       // context path strategy
       MockCAConfig.contextPathStrategyAbsoluteParent(context, 3);
