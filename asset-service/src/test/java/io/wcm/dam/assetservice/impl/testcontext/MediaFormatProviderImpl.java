@@ -19,7 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl.testcontext;
 
-import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 
 import io.wcm.handler.media.spi.MediaFormatProvider;
@@ -35,11 +34,6 @@ public class MediaFormatProviderImpl extends MediaFormatProvider {
    */
   public MediaFormatProviderImpl() {
     super(MediaFormats.class);
-  }
-
-  @Override
-  public boolean matches(Resource resource) {
-    return true;
   }
 
 }
