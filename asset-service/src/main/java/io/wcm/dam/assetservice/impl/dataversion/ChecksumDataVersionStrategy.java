@@ -19,8 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl.dataversion;
 
-import io.wcm.sling.commons.adapter.AdaptTo;
-
 import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +42,8 @@ import org.apache.sling.api.resource.ResourceResolverFactory;
 
 import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
+
+import io.wcm.sling.commons.adapter.AdaptTo;
 
 /**
  * Strategy that generates a checksum bases on all DAM asset's path and last modified dates within the DAM asset folder.
@@ -147,7 +147,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
       catch (LoginException ex) {
         log.error("{} - Unable to get service resource resolver, please check service user configuration: {}", damPath, ex.getMessage());
       }
-      catch (Throwable ex) {
+      /*CHECKSTYLE:OFF*/ catch (Exception ex) { /*CHECKSTYLE:ON*/
         log.error(damPath + " - Error generating data version: " + ex.getMessage(), ex);
       }
     }

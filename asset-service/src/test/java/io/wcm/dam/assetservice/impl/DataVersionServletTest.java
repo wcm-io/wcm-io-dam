@@ -56,9 +56,7 @@ public class DataVersionServletTest {
   public void setUp() {
     context.load().json("/dam-sample-content.json", VALID_DAM_PATH);
     assetService = context.registerInjectActivateService(new AssetService(),
-        ImmutableMap.<String, Object>of(AssetService.DAM_PATHS_PROPERTY, new String[] {
-            VALID_DAM_PATH
-        }));
+        "damPaths", new String[] { VALID_DAM_PATH });
     underTest = assetService.getDataVersionServlet();
   }
 
