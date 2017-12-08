@@ -36,6 +36,7 @@
 
   <name>DAM Asset Service</name>
   <description>A RESTful service for resolving URLs to DAM assets and renditions.</description>
+  <url>${site.url}/${site.url.module.prefix}/</url>
 
   <scm>
     <connection>scm:git:https://github.com/wcm-io/wcm-io-dam.git</connection>
