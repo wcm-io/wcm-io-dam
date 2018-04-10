@@ -36,7 +36,7 @@
 
   <name>DAM Root</name>
   <description>Assets (DAM) extensions for AEM applications.</description>
-  
+
   <modules>
     <module>parent</module>
     <module>asset-service</module>
