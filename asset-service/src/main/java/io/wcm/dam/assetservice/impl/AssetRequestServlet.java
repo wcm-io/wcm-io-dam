@@ -56,6 +56,7 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
     this.damPathHandler = damPathHandler;
   }
 
+  @SuppressWarnings({ "null", "unused" })
   @Override
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
     String assetPath = request.getResource().getPath();

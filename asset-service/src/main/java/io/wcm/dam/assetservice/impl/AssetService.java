@@ -145,6 +145,7 @@ public class AssetService implements EventHandler {
     return (DataVersionServlet)bundleContext.getService(dataVersionServletReg.getReference());
   }
 
+  @SuppressWarnings("null")
   private static <T extends Servlet> ServiceRegistration<Servlet> registerServlet(BundleContext bundleContext, T servletInstance,
       String resourceType, String selector) {
     if (StringUtils.isEmpty(selector)) {
