@@ -22,9 +22,6 @@ package io.wcm.dam.assetservice.impl.dataversion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import io.wcm.dam.assetservice.impl.DamPathHandler;
-import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.wcm.commons.contenttype.ContentType;
 
 import java.util.Calendar;
 
@@ -42,6 +39,10 @@ import org.junit.Test;
 
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.DamEvent;
+
+import io.wcm.dam.assetservice.impl.DamPathHandler;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.wcm.commons.contenttype.ContentType;
 
 public class ChecksumDataVersionStrategyTest {
 

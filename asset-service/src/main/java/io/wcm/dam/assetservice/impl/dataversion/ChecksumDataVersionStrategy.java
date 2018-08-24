@@ -168,6 +168,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
      * @throws LoginException
      * @throws RepositoryException
      */
+    @SuppressWarnings("null")
     private void generateDataVersion() throws LoginException, RepositoryException {
       log.trace("{} - Start data version generation.", damPath);
       ResourceResolver resourceResolver = resourceResolverFactory.getServiceResourceResolver(null);
