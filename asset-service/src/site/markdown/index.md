@@ -21,6 +21,15 @@ Internally the [wcm.io Media Handler][media-handler] is used for building the UR
 See [REST Interface][rest-interface] for a description of the interface.
 
 
+### AEM Version Support Matrix
+
+|DAM Asset Service version |AEM version supported
+|--------------------------|----------------------
+|1.4.x or higher           |AEM 6.2 and up
+|1.3.x                     |AEM 6.1 and up
+|1.0.x - 1.2.x             |AEM 6.0 and up
+
+
 ### Dependencies
 
 To use this module you have to deploy also:
