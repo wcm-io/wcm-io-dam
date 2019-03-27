@@ -19,9 +19,9 @@
  */
 package io.wcm.dam.assetservice.impl.dataversion;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Calendar;
 
@@ -32,22 +32,23 @@ import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.DamEvent;
 
 import io.wcm.dam.assetservice.impl.DamPathHandler;
-import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import io.wcm.wcm.commons.contenttype.ContentType;
 
-public class ChecksumDataVersionStrategyTest {
+@ExtendWith(AemContextExtension.class)
+class ChecksumDataVersionStrategyTest {
 
-  @Rule
-  public AemContext context = new AemContext(ResourceResolverType.JCR_OAK);
+  private final AemContext context = new AemContext(ResourceResolverType.JCR_OAK);
 
   private static final String VALID_PATH_1 = "/content/dam/path1";
   private static final String VALID_PATH_2 = "/content/dam/sub/path2";
@@ -59,8 +60,8 @@ public class ChecksumDataVersionStrategyTest {
   private Asset asset12;
   private Asset asset21;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     // create some sample assets with SHA-1 checksums
     asset11 = context.create().asset(VALID_PATH_1 + "/asset11", 100, 50, ContentType.JPEG);
@@ -80,6 +81,7 @@ public class ChecksumDataVersionStrategyTest {
     Thread.sleep(500);
   }
 
+  @SuppressWarnings("null")
   private void setLastModified(Asset asset, long time) {
     Resource metadata = context.resourceResolver().getResource(asset.getPath() + "/jcr:content");
     ModifiableValueMap props = metadata.adaptTo(ModifiableValueMap.class);
@@ -94,13 +96,13 @@ public class ChecksumDataVersionStrategyTest {
     }
   }
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     underTest.shutdown();
   }
 
   @Test
-  public void testNewDataVersionOnValidPathEvent() throws Exception {
+  void testNewDataVersionOnValidPathEvent() throws Exception {
     String dataVersion1 = underTest.getDataVersion(VALID_PATH_1);
     String dataVersion2 = underTest.getDataVersion(VALID_PATH_2);
     assertNotNull(dataVersion1);
@@ -114,12 +116,12 @@ public class ChecksumDataVersionStrategyTest {
     // data version for path 1 should be changed
     String dataVersion1a = underTest.getDataVersion(VALID_PATH_1);
     assertNotNull(dataVersion1a);
-    assertNotEquals("data version 1 changed", dataVersion1, dataVersion1a);
+    assertNotEquals(dataVersion1, dataVersion1a, "data version 1 changed");
 
     // data version for path 2 should not be unchanged
     String dataVersion2a = underTest.getDataVersion(VALID_PATH_2);
     assertNotNull(dataVersion2a);
-    assertEquals("data version 2 unchanged", dataVersion2, dataVersion2a);
+    assertEquals(dataVersion2, dataVersion2a, "data version 2 unchanged");
 
     // wait a bit more and test again
     Thread.sleep(1000);
@@ -127,17 +129,17 @@ public class ChecksumDataVersionStrategyTest {
     // data version for path 1 should not be changed
     String dataVersion1b = underTest.getDataVersion(VALID_PATH_1);
     assertNotNull(dataVersion1b);
-    assertEquals("data version 1 changed", dataVersion1a, dataVersion1b);
+    assertEquals(dataVersion1a, dataVersion1b, "data version 1 changed");
 
     // data version for path 2 should not be unchanged
     String dataVersion2b = underTest.getDataVersion(VALID_PATH_2);
     assertNotNull(dataVersion2b);
-    assertEquals("data version 2 unchanged", dataVersion2a, dataVersion2b);
+    assertEquals(dataVersion2a, dataVersion2b, "data version 2 unchanged");
 
   }
 
   @Test
-  public void testSameDataVersionOnInvalidPathEvent() throws Exception {
+  void testSameDataVersionOnInvalidPathEvent() throws Exception {
     String dataVersion1 = underTest.getDataVersion(VALID_PATH_1);
     assertNotNull(dataVersion1);
 
@@ -148,7 +150,7 @@ public class ChecksumDataVersionStrategyTest {
 
     String dataVersion2 = underTest.getDataVersion(VALID_PATH_1);
     assertNotNull(dataVersion2);
-    assertEquals("data version", dataVersion1, dataVersion2);
+    assertEquals(dataVersion1, dataVersion2, "data version");
   }
 
 }

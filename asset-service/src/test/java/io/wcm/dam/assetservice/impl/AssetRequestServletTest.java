@@ -22,27 +22,30 @@ package io.wcm.dam.assetservice.impl;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_HEIGHT;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_MEDIAFORMAT;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_WIDTH;
-import static org.junit.Assert.assertEquals;
-import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
-import io.wcm.testing.mock.aem.junit.AemContext;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sling.testing.mock.osgi.MockOsgi;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
+import io.wcm.testing.mock.aem.junit5.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContextExtension;
+
 /**
  * Test {@link AssetRequestServlet} using the new REST API with parameters in URL suffix.
  */
-public class AssetRequestServletTest {
+@ExtendWith(AemContextExtension.class)
+class AssetRequestServletTest {
 
   private static final String DAM_PATH = "/content/dam/sample";
 
@@ -56,14 +59,13 @@ public class AssetRequestServletTest {
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
   };
 
-  @Rule
-  public AemContext context = AppAemContext.newAemContext();
+  private final AemContext context = AppAemContext.newAemContext();
 
   private AssetService assetService;
   private AssetRequestServlet underTest;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     context.load().json("/dam-sample-content.json", DAM_PATH);
     context.load().binaryFile(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_ASSET_PATH + "/jcr:content/renditions/original");
     context.load().binaryFile(new ByteArrayInputStream(IMAGE_BYTES), IMAGE_ASSET_PATH + "/jcr:content/renditions/original");
@@ -72,13 +74,13 @@ public class AssetRequestServletTest {
     underTest = assetService.getAssetRequestServlet();
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     MockOsgi.deactivate(assetService, context.bundleContext(), ImmutableMap.<String, Object>of());
   }
 
   @Test
-  public void testInvalidResource() throws Exception {
+  void testInvalidResource() throws Exception {
     context.currentResource(context.create().resource(DAM_PATH + "/invalid"));
     underTest.doGet(context.request(), context.response());
 
@@ -86,7 +88,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testDownload() throws Exception {
+  void testDownload() throws Exception {
     context.currentResource(context.resourceResolver().getResource(DOWNLOAD_ASSET_PATH));
     underTest.doGet(context.request(), context.response());
 
@@ -103,7 +105,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testImage() throws Exception {
+  void testImage() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     underTest.doGet(context.request(), context.response());
 
@@ -122,7 +124,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testImage_ValidMediaFormat() throws Exception {
+  void testImage_ValidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.requestPathInfo().setSuffix("/" + RP_MEDIAFORMAT + "=format_32_9.json");
     underTest.doGet(context.request(), context.response());
@@ -142,7 +144,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testImage_InvalidMediaFormat() throws Exception {
+  void testImage_InvalidMediaFormat() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.requestPathInfo().setSuffix("/" + RP_MEDIAFORMAT + "=format_4_3.json");
     underTest.doGet(context.request(), context.response());
@@ -151,7 +153,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testImage_ValidSize() throws Exception {
+  void testImage_ValidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=270.json");
     underTest.doGet(context.request(), context.response());
@@ -170,7 +172,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testImage_InvalidSize() throws Exception {
+  void testImage_InvalidSize() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=960.json");
     underTest.doGet(context.request(), context.response());
@@ -179,7 +181,7 @@ public class AssetRequestServletTest {
   }
 
   @Test
-  public void testImage_MultipleSizes() throws Exception {
+  void testImage_MultipleSizes() throws Exception {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=270"
         + "/" + RP_WIDTH + "=640," + RP_HEIGHT + "=180"

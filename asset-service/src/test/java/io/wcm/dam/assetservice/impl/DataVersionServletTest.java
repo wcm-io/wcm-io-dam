@@ -19,9 +19,9 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,43 +30,44 @@ import org.apache.sling.commons.json.JSONObject;
 import org.apache.sling.testing.mock.osgi.MockOsgi;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.day.cq.dam.api.DamEvent;
 import com.google.common.collect.ImmutableMap;
 
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
-import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
-public class DataVersionServletTest {
+@ExtendWith(AemContextExtension.class)
+class DataVersionServletTest {
 
   private static final String VALID_DAM_PATH = "/content/dam/sample";
   private static final String INVALID_DAM_PATH = "/content/dam/invalid";
 
-  @Rule
-  public AemContext context = AppAemContext.newAemContext();
+  private final AemContext context = AppAemContext.newAemContext();
 
   private AssetService assetService;
   private DataVersionServlet underTest;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     context.load().json("/dam-sample-content.json", VALID_DAM_PATH);
     assetService = context.registerInjectActivateService(new AssetService(),
         "damPaths", new String[] { VALID_DAM_PATH });
     underTest = assetService.getDataVersionServlet();
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     MockOsgi.deactivate(assetService, context.bundleContext(), ImmutableMap.<String, Object>of());
   }
 
   @Test
-  public void testInvalidRootPath() throws Exception {
+  void testInvalidRootPath() throws Exception {
     context.currentResource(context.create().resource(INVALID_DAM_PATH));
     underTest.doGet(context.request(), context.response());
 
@@ -74,7 +75,7 @@ public class DataVersionServletTest {
   }
 
   @Test
-  public void testValidRootPath() throws Exception {
+  void testValidRootPath() throws Exception {
     context.currentResource(context.resourceResolver().getResource(VALID_DAM_PATH));
     underTest.doGet(context.request(), context.response());
 
@@ -84,7 +85,7 @@ public class DataVersionServletTest {
   }
 
   @Test
-  public void testDataVersionChange() throws Exception {
+  void testDataVersionChange() throws Exception {
     context.currentResource(context.resourceResolver().getResource(VALID_DAM_PATH));
 
     underTest.doGet(context.request(), context.response());
