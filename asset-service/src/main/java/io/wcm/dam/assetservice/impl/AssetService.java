@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -120,7 +119,7 @@ public class AssetService implements EventHandler {
   }
 
   @Deactivate
-  protected void deactivate(ComponentContext componentContext) {
+  protected void deactivate() {
     log.info("Shutdown wcm.io DAM Asset Service.");
 
     assetRequestServletReg.unregister();

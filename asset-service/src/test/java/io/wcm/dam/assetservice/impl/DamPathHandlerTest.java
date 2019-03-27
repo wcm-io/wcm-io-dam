@@ -19,14 +19,15 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
 import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
 
-import org.junit.After;
-import org.junit.Test;
-
-public class DamPathHandlerTest {
+class DamPathHandlerTest {
 
   private static final String VALID_PATH_1 = "/content/dam/path1";
   private static final String VALID_PATH_2 = "/content/dam/sub/path2";
@@ -34,13 +35,13 @@ public class DamPathHandlerTest {
 
   private DamPathHandler underTest;
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     underTest.shutdown();
   }
 
   @Test
-  public void testIsAllowedAssetPath() throws Exception {
+  void testIsAllowedAssetPath() throws Exception {
     underTest = new DamPathHandler(new String[] {
         VALID_PATH_1,
         VALID_PATH_2
@@ -56,7 +57,7 @@ public class DamPathHandlerTest {
   }
 
   @Test
-  public void testIsAllowedDataVersionPath() throws Exception {
+  void testIsAllowedDataVersionPath() throws Exception {
     underTest = new DamPathHandler(new String[] {
         VALID_PATH_1,
         VALID_PATH_2
@@ -75,21 +76,21 @@ public class DamPathHandlerTest {
   }
 
   @Test
-  public void testWithNullPaths() {
+  void testWithNullPaths() {
     underTest = new DamPathHandler(null, TimestampDataVersionStrategy.STRATEGY, 0, null);
     assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
     assertTrue(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }
 
   @Test
-  public void testWithEmptyArray() {
+  void testWithEmptyArray() {
     underTest = new DamPathHandler(new String[0], TimestampDataVersionStrategy.STRATEGY, 0, null);
     assertTrue(underTest.isAllowedAssetPath(VALID_PATH_1 + "/asset1.jpg"));
     assertTrue(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
   }
 
   @Test
-  public void testWithEmptyPaths() {
+  void testWithEmptyPaths() {
     underTest = new DamPathHandler(new String[] {
         ""
     }, TimestampDataVersionStrategy.STRATEGY, 0, null);

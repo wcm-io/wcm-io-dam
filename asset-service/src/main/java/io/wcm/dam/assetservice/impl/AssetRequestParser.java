@@ -19,8 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.sling.commons.request.RequestParam;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +28,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+
+import io.wcm.sling.commons.request.RequestParam;
 
 /**
  * Parses asset requests from request URL.

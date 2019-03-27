@@ -19,10 +19,6 @@
  */
 package io.wcm.dam.assetservice.impl;
 
-import io.wcm.dam.assetservice.impl.dataversion.ChecksumDataVersionStrategy;
-import io.wcm.dam.assetservice.impl.dataversion.DataVersionStrategy;
-import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +36,10 @@ import org.slf4j.LoggerFactory;
 import com.day.cq.dam.api.DamConstants;
 import com.day.cq.dam.api.DamEvent;
 import com.google.common.collect.ImmutableSet;
+
+import io.wcm.dam.assetservice.impl.dataversion.ChecksumDataVersionStrategy;
+import io.wcm.dam.assetservice.impl.dataversion.DataVersionStrategy;
+import io.wcm.dam.assetservice.impl.dataversion.TimestampDataVersionStrategy;
 
 /**
  * Handles list of configured DAM paths and listens to DAM events on this paths to generate
