@@ -47,4 +47,4 @@ To use this module you have to deploy also:
 [rest-interface]: rest-interface.html
 [configuration]: configuration.html
 [changelog]: changes-report.html
-[media-handler]: http://wcm.io/handler/media/
+[media-handler]: https://wcm.io/handler/media/
