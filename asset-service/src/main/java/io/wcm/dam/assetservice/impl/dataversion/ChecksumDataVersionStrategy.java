@@ -165,8 +165,6 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
     /**
      * Generates a data version by fetching all paths and properties from DAM asset folders (lucene index).
      * The data version is a check sum over all path and selected properties found.
-     * @throws LoginException
-     * @throws RepositoryException
      */
     @SuppressWarnings("null")
     private void generateDataVersion() throws LoginException, RepositoryException {
