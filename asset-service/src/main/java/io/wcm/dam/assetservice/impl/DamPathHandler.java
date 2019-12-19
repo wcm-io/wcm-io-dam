@@ -147,6 +147,9 @@ public class DamPathHandler {
    * @return true if processing is allowed.
    */
   public boolean isAllowedAssetPath(String assetPath) {
+    if (assetPath == null) {
+      return false;
+    }
     return damPathsPattern.matcher(assetPath).matches();
   }
 

@@ -54,6 +54,7 @@ class DamPathHandlerTest {
     // invalid asset paths
     assertFalse(underTest.isAllowedAssetPath(INVALID_PATH + "/asset1.jpg"));
     assertFalse(underTest.isAllowedAssetPath(VALID_PATH_1));
+    assertFalse(underTest.isAllowedAssetPath(null));
   }
 
   @Test
@@ -73,6 +74,7 @@ class DamPathHandlerTest {
     // asset paths are invalid as well
     assertFalse(underTest.isAllowedDataVersionPath(VALID_PATH_1 + "/asset1.jpg"));
     assertFalse(underTest.isAllowedDataVersionPath(VALID_PATH_2 + "/sub2/asset2.jpg"));
+    assertFalse(underTest.isAllowedDataVersionPath(null));
   }
 
   @Test
