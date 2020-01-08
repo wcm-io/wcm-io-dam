@@ -43,6 +43,7 @@ import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
 @ExtendWith(AemContextExtension.class)
+@SuppressWarnings("deprecation")
 class DataVersionServletTest {
 
   private static final String VALID_DAM_PATH = "/content/dam/sample";

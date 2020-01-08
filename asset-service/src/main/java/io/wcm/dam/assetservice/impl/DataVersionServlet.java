@@ -40,6 +40,7 @@ import io.wcm.wcm.commons.contenttype.ContentType;
 /**
  * Returns generated data version if called on the root of an allowed asset path in DAM.
  */
+@SuppressWarnings("deprecation")
 class DataVersionServlet extends SlingSafeMethodsServlet {
   private static final long serialVersionUID = 1L;
 
