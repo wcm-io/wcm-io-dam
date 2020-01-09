@@ -28,7 +28,7 @@
         Fix NPE when asset event without asset path is processed.
       </action>
       <action type="update" dev="sseifert">
-        Switch to AEM 6.2 as minimum version.
+        Switch to AEM 6.3 as minimum version.
       </action>
     </release>
 

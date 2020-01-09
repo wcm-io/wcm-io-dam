@@ -22,6 +22,7 @@ package io.wcm.dam.assetservice.impl;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_HEIGHT;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_MEDIAFORMAT;
 import static io.wcm.dam.assetservice.impl.AssetRequestParser.RP_WIDTH;
+import static org.apache.sling.api.resource.ResourceResolver.PROPERTY_RESOURCE_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -81,7 +82,8 @@ class AssetRequestServletTest {
 
   @Test
   void testInvalidResource() throws Exception {
-    context.currentResource(context.create().resource(DAM_PATH + "/invalid"));
+    context.currentResource(context.create().resource(DAM_PATH + "/invalid",
+        PROPERTY_RESOURCE_TYPE, "/dummy/resourcetype"));
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_NOT_FOUND, context.response().getStatus());

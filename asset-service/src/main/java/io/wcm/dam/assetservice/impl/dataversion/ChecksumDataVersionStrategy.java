@@ -148,7 +148,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
         log.error("{} - Unable to get service resource resolver, please check service user configuration: {}", damPath, ex.getMessage());
       }
       /*CHECKSTYLE:OFF*/ catch (Exception ex) { /*CHECKSTYLE:ON*/
-        log.error(damPath + " - Error generating data version: " + ex.getMessage(), ex);
+        log.error("{} - Error generating data version: {}", damPath, ex.getMessage(), ex);
       }
     }
 

@@ -45,6 +45,7 @@ import io.wcm.wcm.commons.contenttype.ContentType;
  * Implements a simple REST interface that allows resolving DAM asset paths to URLs.
  * For image assets resolving to specific dimensions is supported.
  */
+@SuppressWarnings("deprecation")
 class AssetRequestServlet extends SlingSafeMethodsServlet {
   private static final long serialVersionUID = 1L;
 
@@ -81,7 +82,7 @@ class AssetRequestServlet extends SlingSafeMethodsServlet {
 
     // resolve asset service requests
     List<Media> mediaList = resolveMedia(requests, mediaHandler);
-    if (mediaList.size() == 0) {
+    if (mediaList.isEmpty()) {
       log.debug("No matching assets/renditions found for {}; requests: {}", assetPath, requests);
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
