@@ -8,7 +8,8 @@ Assets (DAM) extensions for AEM applications.
 Documentation: https://wcm.io/dam/<br/>
 Issues: https://wcm-io.atlassian.net/projects/WDAM<br/>
 Wiki: https://wcm-io.atlassian.net/wiki/<br/>
-Continuous Integration: https://travis-ci.org/wcm-io/wcm-io-dam/
+Continuous Integration: https://travis-ci.org/wcm-io/wcm-io-dam/<br/>
+Commercial support: https://wcm.io/commercial-support.html
 
 
 ## Build from sources
