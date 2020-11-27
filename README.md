@@ -1,6 +1,6 @@
 <img src="https://wcm.io/images/favicon-16@2x.png"/> wcm.io DAM Extensions
 ======
-[![Build Status](https://travis-ci.org/wcm-io/wcm-io-dam.png?branch=develop)](https://travis-ci.org/wcm-io/wcm-io-dam)
+[![Build Status](https://travis-ci.com/wcm-io/wcm-io-dam.png?branch=develop)](https://travis-ci.com/wcm-io/wcm-io-dam)
 [![Code Coverage](https://codecov.io/gh/wcm-io/wcm-io-dam/branch/develop/graph/badge.svg)](https://codecov.io/gh/wcm-io/wcm-io-dam)
 
 Assets (DAM) extensions for AEM applications.
@@ -8,7 +8,7 @@ Assets (DAM) extensions for AEM applications.
 Documentation: https://wcm.io/dam/<br/>
 Issues: https://wcm-io.atlassian.net/projects/WDAM<br/>
 Wiki: https://wcm-io.atlassian.net/wiki/<br/>
-Continuous Integration: https://travis-ci.org/wcm-io/wcm-io-dam/<br/>
+Continuous Integration: https://travis-ci.com/wcm-io/wcm-io-dam/<br/>
 Commercial support: https://wcm.io/commercial-support.html
 
 
