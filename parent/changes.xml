@@ -25,6 +25,9 @@
 
     <release version="1.2.0" date="not released">
       <action type="update" dev="sseifert">
+        Switch to AEM 6.4 as minimum versions.
+      </action>
+      <action type="update" dev="sseifert">
         Update to io.wcm.parent_toplevel 1.4.0.
         Switch from maven-bundle-plugin to bnd Maven plugins.
       </action>
