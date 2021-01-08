@@ -187,8 +187,7 @@ class AssetRequestServletTest {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.requestPathInfo().setSuffix("/" + RP_WIDTH + "=960," + RP_HEIGHT + "=270"
         + "/" + RP_WIDTH + "=640," + RP_HEIGHT + "=180"
-        + "/" + RP_WIDTH + "=10," + RP_HEIGHT + "=10"
-        + "/" + RP_WIDTH + "=5.json");
+        + "/" + RP_WIDTH + "=10," + RP_HEIGHT + "=10");
     underTest.doGet(context.request(), context.response());
 
     assertEquals(HttpServletResponse.SC_OK, context.response().getStatus());

@@ -97,6 +97,7 @@ final class AssetRequestParser {
     return params;
   }
 
+  @SuppressWarnings("null")
   private static List<AssetRequest> getAssetRequestsFromUrlParams(String assetPath, SlingHttpServletRequest request) {
     String[] mediaFormats = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_MEDIAFORMAT), new String[0]);
     String[] widthStrings = ObjectUtils.defaultIfNull(RequestParam.getMultiple(request, RP_WIDTH), new String[0]);

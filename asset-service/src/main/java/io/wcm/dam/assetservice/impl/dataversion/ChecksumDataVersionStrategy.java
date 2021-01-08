@@ -72,7 +72,6 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
   private final long dataVersionUpdateIntervalMs;
   private final String dataVersionQueryString;
   private final ResourceResolverFactory resourceResolverFactory;
-  private final ScheduledExecutorService executor;
 
   private volatile String dataVersion;
   private volatile long dataVersionLastUpdate;
@@ -92,7 +91,6 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
 
     this.dataVersionUpdateIntervalMs = dataVersionUpdateIntervalSec * DateUtils.MILLIS_PER_SECOND;
     this.resourceResolverFactory = resourceResolverFactory;
-    this.executor = executor;
     this.dataVersionQueryString = buildDataVersionQueryString(damPath);
 
     this.dataVersion = DATAVERSION_NOT_CALCULATED;
@@ -102,7 +100,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
     }
     else {
       Runnable task = new UpdateDataVersionTask();
-      this.executor.scheduleWithFixedDelay(task, 0, dataVersionUpdateIntervalSec, TimeUnit.SECONDS);
+      executor.scheduleWithFixedDelay(task, 0, dataVersionUpdateIntervalSec, TimeUnit.SECONDS);
     }
   }
 

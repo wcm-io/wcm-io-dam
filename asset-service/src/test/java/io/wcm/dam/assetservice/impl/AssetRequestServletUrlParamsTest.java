@@ -198,7 +198,7 @@ class AssetRequestServletUrlParamsTest {
     context.currentResource(context.resourceResolver().getResource(IMAGE_ASSET_PATH));
     context.request().setParameterMap(ImmutableValueMap.builder()
         .put(RP_WIDTH, new String[] {
-            "960", "640", "10", "5"
+            "960", "640", "10"
         })
         .put(RP_HEIGHT, new String[] {
             "270", "180", "10"
