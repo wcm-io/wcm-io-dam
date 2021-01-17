@@ -43,10 +43,13 @@ To use this strategy a service use has to be configured, see below.
 
 ### Service User Configuration
 
-If the 'checksum' data version strategy is used the DAM asset service needs a service user mapping for the factory configuration `org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended` with an entry like this:
+If the 'checksum' data version strategy is used the DAM asset service needs a principal-based service user mapping entry like this:
 
 ```
-user.mapping="[io.wcm.dam.asset-service=idsjobprocessor]"
+  org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended-myapp-dam-asset-service
+    user.mapping=["io.wcm.dam.asset-service\=[dam-reader-service]"]
 ```
 
-This configuration is only required on Author instances. In this example an existing user "idsjobprocessor" from AEM 6.1 is re-used, you should create a new system user that has read permissions on `/content/dam`.
+The built-in principal `dam-reader-service` has read access to `/content/dam`.
+
+This configuration is required **only on author instances**.

@@ -72,7 +72,6 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
   private final long dataVersionUpdateIntervalMs;
   private final String dataVersionQueryString;
   private final ResourceResolverFactory resourceResolverFactory;
-  private final ScheduledExecutorService executor;
 
   private volatile String dataVersion;
   private volatile long dataVersionLastUpdate;
@@ -92,7 +91,6 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
 
     this.dataVersionUpdateIntervalMs = dataVersionUpdateIntervalSec * DateUtils.MILLIS_PER_SECOND;
     this.resourceResolverFactory = resourceResolverFactory;
-    this.executor = executor;
     this.dataVersionQueryString = buildDataVersionQueryString(damPath);
 
     this.dataVersion = DATAVERSION_NOT_CALCULATED;
@@ -102,7 +100,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
     }
     else {
       Runnable task = new UpdateDataVersionTask();
-      this.executor.scheduleWithFixedDelay(task, 0, dataVersionUpdateIntervalSec, TimeUnit.SECONDS);
+      executor.scheduleWithFixedDelay(task, 0, dataVersionUpdateIntervalSec, TimeUnit.SECONDS);
     }
   }
 
@@ -148,7 +146,7 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
         log.error("{} - Unable to get service resource resolver, please check service user configuration: {}", damPath, ex.getMessage());
       }
       /*CHECKSTYLE:OFF*/ catch (Exception ex) { /*CHECKSTYLE:ON*/
-        log.error(damPath + " - Error generating data version: " + ex.getMessage(), ex);
+        log.error("{} - Error generating data version: {}", damPath, ex.getMessage(), ex);
       }
     }
 
@@ -165,9 +163,8 @@ public class ChecksumDataVersionStrategy extends DataVersionStrategy {
     /**
      * Generates a data version by fetching all paths and properties from DAM asset folders (lucene index).
      * The data version is a check sum over all path and selected properties found.
-     * @throws LoginException
-     * @throws RepositoryException
      */
+    @SuppressWarnings("null")
     private void generateDataVersion() throws LoginException, RepositoryException {
       log.trace("{} - Start data version generation.", damPath);
       ResourceResolver resourceResolver = resourceResolverFactory.getServiceResourceResolver(null);

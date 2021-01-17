@@ -19,23 +19,24 @@
   #L%
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.wcm</groupId>
     <artifactId>io.wcm.dam.parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.dam.asset-service</artifactId>
-  <version>1.3.0</version>
-  <packaging>bundle</packaging>
+  <version>1.4.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>DAM Asset Service</name>
   <description>A RESTful service for resolving URLs to DAM assets and renditions.</description>
+  <url>${site.url}/${site.url.module.prefix}/</url>
 
   <scm>
     <connection>scm:git:https://github.com/wcm-io/wcm-io-dam.git</connection>
@@ -46,6 +47,9 @@
 
   <properties>
     <site.url.module.prefix>dam/asset-service</site.url.module.prefix>
+
+    <!-- Enable reproducible builds -->
+    <project.build.outputTimestamp>${timestamp}</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -54,27 +58,20 @@
     <dependency>
       <groupId>org.apache.sling</groupId>
       <artifactId>org.apache.sling.testing.sling-mock-oak</artifactId>
-      <version>1.0.2</version>
+      <version>2.1.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
           <groupId>org.apache.sling</groupId>
-          <artifactId>org.apache.sling.testing.sling-mock</artifactId>
+          <artifactId>org.apache.sling.testing.sling-mock.core</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <!-- Depend on oak-jcr, which pulls in all needed Oak artifacts -->
-    <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>oak-jcr</artifactId>
-      <version>1.2.2</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.handler.media</artifactId>
-      <version>1.0.0</version>
+      <version>1.10.0</version>
       <scope>compile</scope>
     </dependency>
 
@@ -84,89 +81,87 @@
       <scope>compile</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.sling</groupId>
-      <artifactId>org.apache.sling.caconfig.api</artifactId>
-      <version>1.1.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.sling</groupId>
-      <artifactId>org.apache.sling.caconfig.spi</artifactId>
-      <version>1.3.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.sling</groupId>
-      <artifactId>org.apache.sling.caconfig.impl</artifactId>
-      <version>1.3.2</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- Testing -->
     <dependency>
-      <groupId>io.wcm</groupId>
-      <artifactId>io.wcm.testing.aem-mock</artifactId>
-      <version>1.9.2</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.sling</groupId>
-      <artifactId>org.apache.sling.testing.osgi-mock</artifactId>
-      <version>2.2.4</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.wcm</groupId>
+      <artifactId>io.wcm.testing.aem-mock.junit5</artifactId>
+      <version>4.0.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.sling</groupId>
       <artifactId>org.apache.sling.testing.logging-mock</artifactId>
-      <version>1.0.0</version>
+      <version>2.0.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.skyscreamer</groupId>
       <artifactId>jsonassert</artifactId>
-      <version>1.2.3</version>
+      <version>1.5.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.sling</groupId>
       <artifactId>org.apache.sling.testing.caconfig-mock-plugin</artifactId>
-      <version>1.1.0</version>
+      <version>1.3.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.testing.wcm-io-mock.sling</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.testing.wcm-io-mock.caconfig</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.testing.wcm-io-mock.handler</artifactId>
-      <version>1.0.0</version>
+      <version>1.4.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi.core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi.cmpn</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>com.adobe.aem</groupId>
-      <artifactId>aem-api</artifactId>
+      <artifactId>uber-jar</artifactId>
+      <classifier>apis</classifier>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- For build compatibility with Java 11 -->
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-annotation_1.3_spec</artifactId>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>
@@ -176,16 +171,21 @@
     <plugins>
 
       <plugin>
-        <groupId>io.wcm.devops.maven.plugins</groupId>
-        <artifactId>eclipse-maven-plugin</artifactId>
-        <configuration>
-          <addVersionToProjectName>false</addVersionToProjectName>
-        </configuration>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
       </plugin>
-
       <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-baseline-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
       </plugin>
 
     </plugins>
