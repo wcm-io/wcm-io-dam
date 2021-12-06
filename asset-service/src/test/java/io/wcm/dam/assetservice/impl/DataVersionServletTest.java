@@ -30,13 +30,11 @@ import org.apache.sling.commons.json.JSONObject;
 import org.apache.sling.testing.mock.osgi.MockOsgi;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.day.cq.dam.api.DamEvent;
-import com.google.common.collect.ImmutableMap;
 
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
 import io.wcm.testing.mock.aem.junit5.AemContext;
@@ -57,14 +55,9 @@ class DataVersionServletTest {
   @BeforeEach
   void setUp() {
     context.load().json("/dam-sample-content.json", VALID_DAM_PATH);
-    assetService = context.registerInjectActivateService(new AssetService(),
+    assetService = context.registerInjectActivateService(AssetService.class,
         "damPaths", new String[] { VALID_DAM_PATH });
     underTest = assetService.getDataVersionServlet();
-  }
-
-  @AfterEach
-  void tearDown() {
-    MockOsgi.deactivate(assetService, context.bundleContext(), ImmutableMap.<String, Object>of());
   }
 
   @Test
@@ -100,7 +93,7 @@ class DataVersionServletTest {
     assetService.handleEvent(DamEvent.assetCreated(VALID_DAM_PATH + "/images/image.jpg", null).toEvent());
 
     // do 2nd request
-    MockSlingHttpServletRequest request2 = new MockSlingHttpServletRequest(context.bundleContext());
+    MockSlingHttpServletRequest request2 = new MockSlingHttpServletRequest(MockOsgi.newBundleContext());
     request2.setResource(context.currentResource());
     MockSlingHttpServletResponse response2 = new MockSlingHttpServletResponse();
 

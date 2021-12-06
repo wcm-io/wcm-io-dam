@@ -29,14 +29,10 @@ import java.io.ByteArrayInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.sling.testing.mock.osgi.MockOsgi;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.google.common.collect.ImmutableMap;
 
 import io.wcm.dam.assetservice.impl.testcontext.AppAemContext;
 import io.wcm.sling.commons.resource.ImmutableValueMap;
@@ -72,13 +68,8 @@ class AssetRequestServletUrlParamsTest {
     context.load().binaryFile(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_ASSET_PATH + "/jcr:content/renditions/original");
     context.load().binaryFile(new ByteArrayInputStream(IMAGE_BYTES), IMAGE_ASSET_PATH + "/jcr:content/renditions/original");
 
-    assetService = context.registerInjectActivateService(new AssetService());
+    assetService = context.registerInjectActivateService(AssetService.class);
     underTest = assetService.getAssetRequestServlet();
-  }
-
-  @AfterEach
-  void tearDown() {
-    MockOsgi.deactivate(assetService, context.bundleContext(), ImmutableMap.<String, Object>of());
   }
 
   @Test
