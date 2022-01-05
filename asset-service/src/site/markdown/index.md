@@ -25,7 +25,8 @@ See [REST Interface][rest-interface] for a description of the interface.
 
 |DAM Asset Service version |AEM version supported
 |--------------------------|----------------------
-|1.4.x or higher           |AEM 6.4+, AEMaaCS
+|1.5.x or higher           |AEM 6.5+, AEMaaCS
+|1.4.x                     |AEM 6.4+, AEMaaCS
 |1.3.x                     |AEM 6.1+
 |1.0.x - 1.2.x             |AEM 6.0+
 
